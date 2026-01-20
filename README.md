@@ -319,8 +319,8 @@ This is an academic project and not open for contributions. However, feel free t
 
 **Albert J**  
 MCA Student  
-📧 Email: [your-email@example.com](mailto:your-email@example.com)  
-🌍 Location: India
+📧 Email: [albertcyse@gmail.com](mailto:albertcyse@gmail.com)  
+🌍 Location: TamilNadu, India
 
 ---
 
