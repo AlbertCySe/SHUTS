@@ -1,4 +1,7 @@
-# Backend - Maven/Spring Boot
+##### Environment Variables #####
+.env
+
+##### Backend (Maven/Spring Boot) #####
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
@@ -25,6 +28,11 @@ logs/
 .DS_Store
 Thumbs.db
 desktop.ini
+[Tt]humbs.db
+ehthumbs.db
+Desktop.ini
+.AppleDouble
+.LSOverride
 
 # IDE - IntelliJ IDEA
 .idea/
@@ -54,6 +62,8 @@ nbdist/
 *.db
 *.sqlite
 *.sql~
+*.dump
+*.backup.sql
 
 # Environment Variables
 .env
@@ -82,7 +92,7 @@ credentials.json
 *.tar.gz
 *.rar
 
-# Generated Files
+#Generated Files
 /generated/
 /reports/
 
@@ -100,20 +110,6 @@ pnpm-debug.log*
 .gradle/
 build/
 
-# Mac folder attributes
-.DS_Store
-.AppleDouble
-.LSOverride
-
-# Windows folder attributes  
-[Tt]humbs.db
-ehthumbs.db
-Desktop.ini
-
-# Package lock files (optional - uncomment if you want to ignore)
-# package-lock.json
-# yarn.lock
-
 # Backup files
 *.bak
 *.backup
@@ -122,6 +118,17 @@ Desktop.ini
 # Spring Boot DevTools
 .spring-boot-devtools.properties
 
-# MySQL/Database backups
-*.dump
-*.backup.sql
+# IoT Simulator offline storage
+iot-simulator/offline-gps-data.json
+
+# Compiled class files
+*.class
+
+# Brain/Artifacts directory (documentation)
+.gemini/
+brain/
+
+# Package lock files (optional)
+# Uncomment if you want to ignore
+# package-lock.json
+# yarn.lock

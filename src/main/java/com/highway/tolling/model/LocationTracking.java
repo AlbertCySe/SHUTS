@@ -27,9 +27,19 @@ public class LocationTracking {
     @Column(nullable = false)
     private LocalDateTime timestamp;
 
+    @Column
+    private Long highwayId; // null if not on highway
+
+    @Column
+    private Double distanceFromPrevious; // distance from previous GPS point in km
+
+    @Column(nullable = false)
+    private Boolean isOnHighway; // whether this location is on a highway
+
     // Constructors
     public LocationTracking() {
         this.timestamp = LocalDateTime.now();
+        this.isOnHighway = false;
     }
 
     public LocationTracking(Long vehicleId, Double latitude, Double longitude) {
@@ -37,6 +47,15 @@ public class LocationTracking {
         this.latitude = latitude;
         this.longitude = longitude;
         this.timestamp = LocalDateTime.now();
+        this.isOnHighway = false;
+    }
+
+    public LocationTracking(Long vehicleId, Double latitude, Double longitude, LocalDateTime timestamp) {
+        this.vehicleId = vehicleId;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.timestamp = timestamp;
+        this.isOnHighway = false;
     }
 
     // Getters and Setters
@@ -80,6 +99,30 @@ public class LocationTracking {
         this.timestamp = timestamp;
     }
 
+    public Long getHighwayId() {
+        return highwayId;
+    }
+
+    public void setHighwayId(Long highwayId) {
+        this.highwayId = highwayId;
+    }
+
+    public Double getDistanceFromPrevious() {
+        return distanceFromPrevious;
+    }
+
+    public void setDistanceFromPrevious(Double distanceFromPrevious) {
+        this.distanceFromPrevious = distanceFromPrevious;
+    }
+
+    public Boolean getIsOnHighway() {
+        return isOnHighway;
+    }
+
+    public void setIsOnHighway(Boolean isOnHighway) {
+        this.isOnHighway = isOnHighway;
+    }
+
     @Override
     public String toString() {
         return "LocationTracking{" +
@@ -88,6 +131,9 @@ public class LocationTracking {
                 ", latitude=" + latitude +
                 ", longitude=" + longitude +
                 ", timestamp=" + timestamp +
+                ", highwayId=" + highwayId +
+                ", distanceFromPrevious=" + distanceFromPrevious + " km" +
+                ", isOnHighway=" + isOnHighway +
                 '}';
     }
 }
