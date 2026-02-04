@@ -263,9 +263,9 @@ smart-highway-tolling-system/
 │ phone_number │        │user_id (FK)  │        │  longitude   │
 │ created_at   │        │registered_at │        │  timestamp   │
 └──────────────┘        └──────────────┘        │  highway_id  │
-       │1                                        │  distance    │
-       │                                         │  is_on_hwy   │
-       │                                         └──────────────┘
+       │1                                       │  distance    │
+       │                                        │  is_on_hwy   │
+       │                                        └──────────────┘
        │1
        ↓
 ┌──────────────┐        ┌──────────────┐        ┌──────────────┐
