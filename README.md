@@ -19,7 +19,7 @@ The **Smart Highway Usage-Based Tolling System** is an innovative full-stack web
 **Developed By:** Albert J  
 **Institution:** SRM Institute of Science and Technology - Trichy  
 **Program:** Master of Computer Applications (MCA)  
-**Academic Year:** 2025-2026  
+**Academic Year:** 2024-2026  
 **Project Type:** Final Year Project
 
 > **🚀 Quick Start:** Run `start-project.bat` for one-click setup and launch!  
@@ -344,6 +344,22 @@ npm -v     # Should show npm version
 mvn -v
 # Expected output: Apache Maven 3.x.x
 ```
+
+**⚡ Helper Scripts Available:**
+If you don't have Maven or Node.js installed, use our automated installer scripts:
+
+- **`install-maven.bat`** - Auto-downloads and installs Apache Maven
+  - Downloads Maven 3.9.5 from Apache archives
+  - Extracts to `C:\Program Files\Apache\maven`
+  - Offers to add to system PATH
+
+- **`install-nodejs.bat`** - Auto-downloads and installs Node.js LTS
+  - Downloads latest Node.js LTS installer
+  - Silent installation mode
+  - Auto-configures PATH
+
+**Just run these scripts if prerequisites are missing!**
+
 
 ### Step-by-Step Project Setup
 
