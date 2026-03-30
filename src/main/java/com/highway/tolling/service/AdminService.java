@@ -1,5 +1,6 @@
 package com.highway.tolling.service;
 
+import com.highway.tolling.dto.VehicleAdminDTO;
 import com.highway.tolling.model.Bill;
 import com.highway.tolling.model.Vehicle;
 import com.highway.tolling.model.Wallet;
@@ -7,6 +8,8 @@ import com.highway.tolling.repository.BillRepository;
 import com.highway.tolling.repository.VehicleRepository;
 import com.highway.tolling.repository.WalletRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -33,12 +36,35 @@ public class AdminService {
     }
 
     /**
-     * Get all vehicles in the system
+     * Get all vehicles in the system with user information
      * 
-     * @return List of all vehicles
+     * @return List of all vehicles with user details exposed
      */
-    public List<Vehicle> getAllVehicles() {
-        return vehicleRepository.findAll();
+    public List<java.util.Map<String, Object>> getAllVehicles() {
+        List<Vehicle> vehicles = vehicleRepository.findAll();
+        return vehicles.stream()
+                .map(vehicle -> {
+                    java.util.Map<String, Object> vehicleData = new java.util.HashMap<>();
+                    vehicleData.put("vehicleId", vehicle.getVehicleId());
+                    vehicleData.put("vehicleNumber", vehicle.getVehicleNumber());
+                    vehicleData.put("vehicleType", vehicle.getVehicleType().toString());
+                    vehicleData.put("registeredAt", vehicle.getRegisteredAt());
+                    vehicleData.put("status", "Active"); // Default status
+
+                    // Include user information
+                    if (vehicle.getUser() != null) {
+                        vehicleData.put("userId", vehicle.getUser().getUserId());
+                        vehicleData.put("userName", vehicle.getUser().getName());
+                        vehicleData.put("userEmail", vehicle.getUser().getEmail());
+                    } else {
+                        vehicleData.put("userId", null);
+                        vehicleData.put("userName", "N/A");
+                        vehicleData.put("userEmail", "N/A");
+                    }
+
+                    return vehicleData;
+                })
+                .collect(Collectors.toList());
     }
 
     /**
@@ -95,6 +121,18 @@ public class AdminService {
                 totalBills,
                 totalTollCollected,
                 walletsInDeficit);
+    }
+
+    /**
+     * Get paginated vehicles with user data for admin dashboard
+     * Uses JPQL projection to fetch data in single query
+     * Optimized to avoid N+1 query problem
+     * 
+     * @param pageable pagination information
+     * @return Page of VehicleAdminDTO
+     */
+    public Page<VehicleAdminDTO> getVehiclesWithUserData(Pageable pageable) {
+        return vehicleRepository.findAllVehiclesWithUserData(pageable);
     }
 
     /**

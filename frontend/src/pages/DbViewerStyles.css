@@ -1,0 +1,268 @@
+/* ── Floating DB Viewer Panel ──────────────────────────────── */
+
+.dbv-panel {
+    position: fixed;
+    bottom: 80px;
+    right: 24px;
+    width: 580px;
+    max-width: calc(100vw - 48px);
+    max-height: 460px;
+    background: #1e2530;
+    border-radius: 12px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.45);
+    z-index: 9998;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: dbvSlideIn 0.22s ease;
+    border: 1px solid rgba(255,255,255,0.08);
+    transition: width 0.25s ease, height 0.25s ease, top 0.25s ease,
+                right 0.25s ease, bottom 0.25s ease, border-radius 0.25s ease,
+                max-height 0.25s ease;
+}
+
+/* Fullscreen mode */
+.dbv-panel.fullscreen {
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100vw;
+    max-width: 100vw;
+    max-height: 100vh;
+    border-radius: 0;
+    z-index: 10000;
+}
+
+
+.dbv-panel.minimized {
+    max-height: unset;
+    height: auto;
+}
+
+@keyframes dbvSlideIn {
+    from { opacity: 0; transform: translateY(16px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0)   scale(1); }
+}
+
+/* ── Header ─────────────────────────────────────────────────── */
+.dbv-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: #161c26;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    flex-shrink: 0;
+}
+
+.dbv-panel-title {
+    color: #4ecdc4;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.4px;
+}
+
+.dbv-panel-actions {
+    display: flex;
+    gap: 4px;
+}
+
+.dbv-action-btn {
+    background: rgba(255,255,255,0.06);
+    border: none;
+    color: #ccc;
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, color 0.15s;
+}
+
+.dbv-action-btn:hover {
+    background: rgba(255,255,255,0.14);
+    color: white;
+}
+
+.dbv-close:hover {
+    background: rgba(231, 76, 60, 0.3);
+    color: #e74c3c;
+}
+
+/* ── Panel Body ─────────────────────────────────────────────── */
+.dbv-panel-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
+}
+
+/* ── Tabs ───────────────────────────────────────────────────── */
+.dbv-tabs {
+    display: flex;
+    background: #161c26;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    flex-shrink: 0;
+    overflow-x: auto;
+}
+
+.dbv-tab {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border: none;
+    background: transparent;
+    color: #8a9bb0;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+}
+
+.dbv-tab:hover {
+    color: #cdd6e0;
+}
+
+.dbv-tab.active {
+    color: #4ecdc4;
+    border-bottom: 2px solid #4ecdc4;
+}
+
+.dbv-count {
+    background: #2d9cdb;
+    color: white;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 6px;
+}
+
+/* ── Table Scroll Area ──────────────────────────────────────── */
+.dbv-table-area {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.dbv-scroll {
+    flex: 1;
+    overflow: auto;
+    padding: 0;
+}
+
+.dbv-row-count {
+    font-size: 11px;
+    color: #5a6a7a;
+    padding: 6px 12px 4px;
+    margin: 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.dbv-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.dbv-table thead th {
+    background: #1a2233;
+    color: #7a9cbf;
+    font-weight: 600;
+    padding: 7px 12px;
+    text-align: left;
+    position: sticky;
+    top: 0;
+    white-space: nowrap;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.dbv-table tbody tr {
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    transition: background 0.1s;
+}
+
+.dbv-table tbody tr:hover {
+    background: rgba(255,255,255,0.04);
+}
+
+.dbv-table tbody td {
+    padding: 6px 12px;
+    color: #c8d6e2;
+    white-space: nowrap;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dbv-row-num {
+    color: #3d5068 !important;
+    font-size: 10px;
+    text-align: center;
+    width: 28px;
+    user-select: none;
+}
+
+.dbv-null {
+    color: #3d5068;
+    font-style: italic;
+}
+
+.dbv-json {
+    font-family: monospace;
+    color: #c792ea;
+    font-size: 11px;
+}
+
+/* ── Messages ───────────────────────────────────────────────── */
+.dbv-msg {
+    color: #5a6a7a;
+    font-size: 13px;
+    padding: 24px 16px;
+    text-align: center;
+    margin: 0;
+}
+
+.dbv-error {
+    padding: 16px;
+    text-align: center;
+    color: #e07070;
+    font-size: 13px;
+}
+
+.dbv-retry {
+    margin-top: 8px;
+    padding: 5px 14px;
+    background: #2d3a4a;
+    border: 1px solid #4a6080;
+    color: #8ab4d4;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 12px;
+    display: inline-block;
+}
+
+.dbv-retry:hover {
+    background: #3a4a5a;
+}
+
+/* ── Mobile ─────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+    .dbv-panel {
+        right: 12px;
+        bottom: 76px;
+        width: calc(100vw - 24px);
+        max-height: 360px;
+    }
+}

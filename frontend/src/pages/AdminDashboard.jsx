@@ -110,100 +110,53 @@ function AdminDashboard() {
                 )}
             </div>
 
+
             {/* Negative Balance Wallets */}
             <div className="card">
                 <h3>Wallets with Negative Balance</h3>
 
-                {walletsLoading && <p className="info-text">Loading wallets...</p>}
+                    {walletsLoading && <p className="info-text">Loading wallets...</p>}
 
-                {walletsError && (
-                    <div className="error-message">
-                        <p>{walletsError}</p>
-                    </div>
-                )}
+                    {walletsError && (
+                        <div className="error-message">
+                            <p>{walletsError}</p>
+                        </div>
+                    )}
 
-                {!walletsLoading && !walletsError && negativeWallets.length > 0 && (
-                    <div className="table-container">
-                        <table className="table">
-                            <thead>
-                                <tr>
-                                    <th>Wallet ID</th>
-                                    <th>User ID</th>
-                                    <th>Balance</th>
-                                    <th>Minimum Balance</th>
-                                    <th>Deficit Amount</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {negativeWallets.map((wallet) => (
-                                    <tr key={wallet.walletId}>
-                                        <td>{wallet.walletId}</td>
-                                        <td>{wallet.user?.userId || 'N/A'}</td>
-                                        <td className="text-danger">₹{wallet.balance.toFixed(2)}</td>
-                                        <td>₹{wallet.minimumBalance.toFixed(2)}</td>
-                                        <td className="text-danger">
-                                            ₹{(wallet.minimumBalance - wallet.balance).toFixed(2)}
-                                        </td>
+                    {!walletsLoading && !walletsError && negativeWallets.length > 0 && (
+                        <div className="table-container">
+                            <table className="table">
+                                <thead>
+                                    <tr>
+                                        <th>Wallet ID</th>
+                                        <th>User ID</th>
+                                        <th>Balance</th>
+                                        <th>Minimum Balance</th>
+                                        <th>Deficit Amount</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
+                                </thead>
+                                <tbody>
+                                    {negativeWallets.map((wallet) => (
+                                        <tr key={wallet.walletId}>
+                                            <td>{wallet.walletId}</td>
+                                            <td>{wallet.user?.userId || 'N/A'}</td>
+                                            <td className="text-danger">₹{wallet.balance.toFixed(2)}</td>
+                                            <td>₹{wallet.minimumBalance.toFixed(2)}</td>
+                                            <td className="text-danger">
+                                                ₹{(wallet.minimumBalance - wallet.balance).toFixed(2)}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
 
-                {!walletsLoading && !walletsError && negativeWallets.length === 0 && (
-                    <p className="info-text">✓ No wallets with negative balance!</p>
-                )}
-            </div>
+                    {!walletsLoading && !walletsError && negativeWallets.length === 0 && (
+                        <p className="info-text">✓ No wallets with negative balance!</p>
+                    )}
+                </div>
 
-            {/* All Vehicles */}
-            <div className="card">
-                <h3>All Registered Vehicles</h3>
-
-                {vehiclesLoading && <p className="info-text">Loading vehicles...</p>}
-
-                {vehiclesError && (
-                    <div className="error-message">
-                        <p>{vehiclesError}</p>
-                    </div>
-                )}
-
-                {!vehiclesLoading && !vehiclesError && vehicles.length > 0 && (
-                    <div className="table-container">
-                        <p style={{ marginBottom: '10px', color: '#666' }}>
-                            Total: {vehicles.length} vehicle(s)
-                        </p>
-                        <table className="table">
-                            <thead>
-                                <tr>
-                                    <th>Vehicle ID</th>
-                                    <th>Vehicle Number</th>
-                                    <th>Vehicle Type</th>
-                                    <th>User ID</th>
-                                    <th>Registered At</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {vehicles.map((vehicle) => (
-                                    <tr key={vehicle.vehicleId}>
-                                        <td>{vehicle.vehicleId}</td>
-                                        <td>{vehicle.vehicleNumber}</td>
-                                        <td>
-                                            <span className="badge badge-type">{vehicle.vehicleType}</span>
-                                        </td>
-                                        <td>{vehicle.user?.userId || 'N/A'}</td>
-                                        <td>{new Date(vehicle.registeredAt).toLocaleDateString()}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
-
-                {!vehiclesLoading && !vehiclesError && vehicles.length === 0 && (
-                    <p className="info-text">No vehicles registered yet.</p>
-                )}
-            </div>
         </div>
     );
 }

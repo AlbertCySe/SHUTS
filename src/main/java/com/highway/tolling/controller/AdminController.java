@@ -1,9 +1,13 @@
 package com.highway.tolling.controller;
 
+import com.highway.tolling.dto.VehicleAdminDTO;
 import com.highway.tolling.model.Vehicle;
 import com.highway.tolling.model.Wallet;
 import com.highway.tolling.service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,8 +36,8 @@ public class AdminController {
      * GET /api/admin/vehicles
      */
     @GetMapping("/vehicles")
-    public ResponseEntity<List<Vehicle>> getAllVehicles() {
-        List<Vehicle> vehicles = adminService.getAllVehicles();
+    public ResponseEntity<List<java.util.Map<String, Object>>> getAllVehicles() {
+        List<java.util.Map<String, Object>> vehicles = adminService.getAllVehicles();
         return new ResponseEntity<>(vehicles, HttpStatus.OK);
     }
 
@@ -90,5 +94,28 @@ public class AdminController {
     @GetMapping("/health")
     public ResponseEntity<String> healthCheck() {
         return new ResponseEntity<>("Admin API is running!", HttpStatus.OK);
+    }
+
+    /**
+     * Get paginated vehicles with user details for admin dashboard
+     * GET /api/admin/vehicles/paginated
+     * 
+     * Uses JPQL projection to fetch vehicle and user data in single query
+     * Optimized to avoid N+1 query problem
+     * 
+     * Example: GET /api/admin/vehicles/paginated?page=0&size=20
+     * 
+     * @param page Page number (0-indexed)
+     * @param size Page size
+     * @return ResponseEntity containing Page of VehicleAdminDTO
+     */
+    @GetMapping("/vehicles/paginated")
+    public ResponseEntity<Page<VehicleAdminDTO>> getVehiclesPaginated(
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "20") Integer size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<VehicleAdminDTO> vehiclesPage = adminService.getVehiclesWithUserData(pageable);
+        return new ResponseEntity<>(vehiclesPage, HttpStatus.OK);
     }
 }

@@ -1,36 +1,61 @@
-##### Environment Variables #####
+# Environment Variables & Secrets
 .env
+.env.*
+*.env
+application-secrets.properties
+secrets.properties
+credentials.json
 
-##### Backend (Maven/Spring Boot) #####
+# Maven / Java Build Output
 target/
-!.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+*.class
 
-# Spring Boot specific
+# Maven Wrapper
 .mvn/
-mvnw
-mvnw.cmd
+!/.mvn/wrapper/maven-wrapper.properties
 
-# Frontend - React/Vite/Node
+# Frontend / Node 
 frontend/node_modules/
 frontend/dist/
 frontend/build/
 frontend/.vite/
 frontend/*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 
-# Logs
+# IoT Simulator Specific
+iot-simulator/offline-gps-data.json
+iot-simulator/target/
+iot-simulator/*.log
+
+# Logs & Temporary Files
 *.log
 logs/
 *.log.*
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+*.bak
+*.backup
+*.old
 
-# OS Files
+# OS Generated Files
 .DS_Store
 Thumbs.db
 desktop.ini
 [Tt]humbs.db
 ehthumbs.db
-Desktop.ini
 .AppleDouble
 .LSOverride
 
@@ -41,94 +66,25 @@ Desktop.ini
 *.iws
 out/
 
-# IDE - Eclipse
+# IDE - Eclipse / VS Code / NetBeans
 .project
 .classpath
 .settings/
 .metadata/
 bin/
-
-# IDE - VS Code
 .vscode/
 *.code-workspace
-
-# IDE - NetBeans
 nbproject/
 nbbuild/
 nbdist/
 .nb-gradle/
 
-# Database
-*.db
-*.sqlite
-*.sql~
-*.dump
-*.backup.sql
-
-# Environment Variables
-.env
-.env.local
-.env.prod
-*.env
-
-# Credentials (NEVER commit these!)
-application-secrets.properties
-secrets.properties
-credentials.json
-
-# Temporary Files
-*.tmp
-*.temp
-*.swp
-*.swo
-*~
-
-# Package Files
-*.jar
-*.war
-*.nar
-*.ear
-*.zip
-*.tar.gz
-*.rar
-
-#Generated Files
-/generated/
-/reports/
-
-# Test Coverage
+# Build caching
+.gradle/
+build/
 coverage/
 *.coverage
 
-# npm debug logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-
-# Build info
-.gradle/
-build/
-
-# Backup files
-*.bak
-*.backup
-*.old
-
-# Spring Boot DevTools
-.spring-boot-devtools.properties
-
-# IoT Simulator offline storage
-iot-simulator/offline-gps-data.json
-
-# Compiled class files
-*.class
-
-# Brain/Artifacts directory (documentation)
+# AI/Agent Artifacts
 .gemini/
 brain/
-
-# Package lock files (optional)
-# Uncomment if you want to ignore
-# package-lock.json
-# yarn.lock

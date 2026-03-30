@@ -1,6 +1,7 @@
 package com.highway.tolling.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -27,6 +28,9 @@ public class Vehicle {
     @JoinColumn(name = "user_id", nullable = false)
     @JsonBackReference
     private User user;
+
+    @Column(nullable = false, length = 20)
+    private String status = "ACTIVE";
 
     @Column(nullable = false)
     private LocalDateTime registeredAt;
@@ -74,6 +78,19 @@ public class Vehicle {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    @JsonProperty("ownerId")
+    public Long getOwnerId() {
+        return user != null ? user.getUserId() : null;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public LocalDateTime getRegisteredAt() {

@@ -1,11 +1,7 @@
-import { useState, useEffect } from 'react';
-import { getRequest, postRequest } from '../services/api';
+import { useState } from 'react';
+import { postRequest } from '../services/api';
 
 function Users() {
-    const [users, setUsers] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-
     // Form state
     const [formData, setFormData] = useState({
         name: '',
@@ -15,25 +11,6 @@ function Users() {
     const [formLoading, setFormLoading] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
     const [formError, setFormError] = useState('');
-
-    // Fetch users when component mounts
-    useEffect(() => {
-        fetchUsers();
-    }, []);
-
-    const fetchUsers = async () => {
-        try {
-            setLoading(true);
-            setError(null);
-            const data = await getRequest('/users');
-            setUsers(data);
-        } catch (err) {
-            setError('Failed to fetch users. Make sure the backend is running.');
-            console.error('Error fetching users:', err);
-        } finally {
-            setLoading(false);
-        }
-    };
 
     // Handle form input changes
     const handleInputChange = (e) => {
@@ -65,7 +42,7 @@ function Users() {
             const newUser = await postRequest('/users', formData);
 
             // Show success message
-            setSuccessMessage(`User "${newUser.name}" created successfully!`);
+            setSuccessMessage(`User "${newUser.name}" registered successfully! Check your email for login details.`);
 
             // Clear form
             setFormData({
@@ -74,16 +51,13 @@ function Users() {
                 phoneNumber: ''
             });
 
-            // Refresh user list
-            fetchUsers();
-
-            // Clear success message after 3 seconds
+            // Clear success message after 5 seconds
             setTimeout(() => {
                 setSuccessMessage('');
-            }, 3000);
+            }, 5000);
 
         } catch (err) {
-            setFormError('Failed to create user. Please try again.');
+            setFormError('Failed to register. Please try again.');
             console.error('Error creating user:', err);
         } finally {
             setFormLoading(false);
@@ -92,7 +66,7 @@ function Users() {
 
     return (
         <div className="page">
-            <h2>User Management</h2>
+            <h2>User Registration</h2>
 
             {/* Create User Form */}
             <div className="card">
@@ -154,63 +128,13 @@ function Users() {
                         className="btn btn-primary"
                         disabled={formLoading}
                     >
-                        {formLoading ? 'Creating...' : 'Register User'}
+                        {formLoading ? 'Registering...' : 'Register User'}
                     </button>
                 </form>
-            </div>
-
-            {/* Users List */}
-            <div className="card">
-                <h3>All Users</h3>
-
-                {/* Loading State */}
-                {loading && (
-                    <p className="info-text">Loading users...</p>
-                )}
-
-                {/* Error State */}
-                {error && (
-                    <div className="error-message">
-                        <p>{error}</p>
-                        <button onClick={fetchUsers} className="btn btn-primary">
-                            Retry
-                        </button>
-                    </div>
-                )}
-
-                {/* Users Table */}
-                {!loading && !error && users.length > 0 && (
-                    <div className="table-container">
-                        <table className="table">
-                            <thead>
-                                <tr>
-                                    <th>User ID</th>
-                                    <th>Name</th>
-                                    <th>Email</th>
-                                    <th>Phone Number</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {users.map((user) => (
-                                    <tr key={user.userId}>
-                                        <td>{user.userId}</td>
-                                        <td>{user.name}</td>
-                                        <td>{user.email}</td>
-                                        <td>{user.phoneNumber}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
-
-                {/* No Users Found */}
-                {!loading && !error && users.length === 0 && (
-                    <p className="info-text">No users found. Create your first user!</p>
-                )}
             </div>
         </div>
     );
 }
 
 export default Users;
+

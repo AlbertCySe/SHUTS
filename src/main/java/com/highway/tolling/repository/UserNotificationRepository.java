@@ -1,0 +1,13 @@
+package com.highway.tolling.repository;
+
+import com.highway.tolling.model.UserNotification;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface UserNotificationRepository extends JpaRepository<UserNotification, Long> {
+    List<UserNotification> findByUserIdOrderByCreatedAtDesc(Long userId);
+    long countByUserIdAndIsRead(Long userId, boolean isRead);
+}

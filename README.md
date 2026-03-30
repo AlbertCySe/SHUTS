@@ -46,6 +46,9 @@ The **Smart Highway Usage-Based Tolling System** is an innovative full-stack web
 - ✅ **Admin dashboard** for system oversight
 - ✅ **Fraud detection** with anomaly alerts
 - ✅ **Fair pricing** based on actual usage
+- ✅ **Smart request system** with admin approval workflows
+- ✅ **Live notifications** for real-time admin-user communication
+- ✅ **Interactive maps** for live vehicle route visualization
 
 ---
 
@@ -112,6 +115,7 @@ The **Smart Highway Usage-Based Tolling System** is an innovative full-stack web
 | **Build Tool** | Vite | 5.0 | Fast build and hot reload |
 | **Routing** | React Router | 6.x | Client-side navigation |
 | **HTTP Client** | Axios | 1.6 | API communication |
+| **Maps** | React-Leaflet | Latest | Interactive GPS route maps |
 | **Styling** | CSS3 | — | Modern responsive design |
 
 ### Additional Modules
@@ -119,6 +123,8 @@ The **Smart Highway Usage-Based Tolling System** is an innovative full-stack web
 |--------|-----------|---------|
 | **IoT Simulator** | Spring Boot | Simulate GPS devices |
 | **Fraud Detection** | Custom Algorithms | Anomaly detection system |
+| **Notification Engine** | Spring Boot + Polling | Real-time admin-user alerts |
+| **Request Workflow** | Spring Boot | Admin approval queue system |
 
 ---
 
@@ -138,7 +144,9 @@ smart-highway-tolling-system/
 │   │   │   │   │   ├── IoTController.java
 │   │   │   │   │   ├── TollCalculationController.java
 │   │   │   │   │   ├── HighwayUsageController.java
-│   │   │   │   │   └── AnomalyReviewController.java
+│   │   │   │   │   ├── AnomalyReviewController.java
+│   │   │   │   │   ├── VehicleRequestController.java  # NEW
+│   │   │   │   │   └── NotificationController.java    # NEW
 │   │   │   │   │
 │   │   │   │   ├── model/             # JPA Entity Models
 │   │   │   │   │   ├── User.java
@@ -152,7 +160,11 @@ smart-highway-tolling-system/
 │   │   │   │   │   ├── DataAnomaly.java
 │   │   │   │   │   ├── AnomalyType.java (enum)
 │   │   │   │   │   ├── AnomalySeverity.java (enum)
-│   │   │   │   │   └── ReviewStatus.java (enum)
+│   │   │   │   │   ├── ReviewStatus.java (enum)
+│   │   │   │   │   ├── VehicleRequest.java            # NEW
+│   │   │   │   │   ├── VehicleRequestType.java (enum) # NEW
+│   │   │   │   │   ├── ProfileRequest.java            # NEW
+│   │   │   │   │   └── UserNotification.java          # NEW
 │   │   │   │   │
 │   │   │   │   ├── repository/        # Data Access Layer
 │   │   │   │   │   ├── UserRepository.java
@@ -161,7 +173,9 @@ smart-highway-tolling-system/
 │   │   │   │   │   ├── LocationTrackingRepository.java
 │   │   │   │   │   ├── HighwayUsageRepository.java
 │   │   │   │   │   ├── BillRepository.java
-│   │   │   │   │   └── DataAnomalyRepository.java
+│   │   │   │   │   ├── DataAnomalyRepository.java
+│   │   │   │   │   ├── VehicleRequestRepository.java  # NEW
+│   │   │   │   │   └── UserNotificationRepository.java # NEW
 │   │   │   │   │
 │   │   │   │   ├── service/           # Business Logic Services
 │   │   │   │   │   ├── UserService.java
@@ -175,7 +189,9 @@ smart-highway-tolling-system/
 │   │   │   │   │   ├── HighwayUsageAggregationService.java
 │   │   │   │   │   ├── TollCalculationService.java
 │   │   │   │   │   ├── AnomalyDetectionService.java
-│   │   │   │   │   └── BillGenerationService.java
+│   │   │   │   │   ├── BillGenerationService.java
+│   │   │   │   │   ├── VehicleRequestService.java     # NEW
+│   │   │   │   │   └── NotificationService.java       # NEW
 │   │   │   │   │
 │   │   │   │   ├── dto/               # Data Transfer Objects
 │   │   │   │   │   ├── IoTDataRequest.java
@@ -193,7 +209,8 @@ smart-highway-tolling-system/
 │   │   ├── src/
 │   │   │   ├── pages/
 │   │   │   │   ├── Home.jsx
-│   │   │   │   ├── Users.jsx
+│   │   │   │   ├── AdminUsers.jsx           # NEW
+│   │   │   │   ├── AdminVehicles.jsx        # NEW
 │   │   │   │   ├── Vehicles.jsx
 │   │   │   │   ├── Highways.jsx
 │   │   │   │   ├── Locations.jsx
@@ -201,6 +218,25 @@ smart-highway-tolling-system/
 │   │   │   │   └── Admin.jsx
 │   │   │   │
 │   │   │   ├── components/
+│   │   │   │   ├── admin/                   # NEW
+│   │   │   │   │   ├── AdminProfileRequests.jsx
+│   │   │   │   │   ├── AdminUsersTable.jsx
+│   │   │   │   │   ├── AdminVehicleRequests.jsx
+│   │   │   │   │   ├── AdminVehiclesTable.jsx
+│   │   │   │   │   └── AdminVehicleModal.jsx
+│   │   │   │   ├── dashboard/               # NEW
+│   │   │   │   ├── vehicles/                # NEW
+│   │   │   │   │   ├── VehicleRequestModal.jsx
+│   │   │   │   │   └── VehicleTable.jsx
+│   │   │   │   ├── wallet/                  # NEW
+│   │   │   │   ├── NotificationBell.jsx     # NEW
+│   │   │   │   ├── Paginator.jsx            # NEW
+│   │   │   │   ├── LoadingFallback.jsx
+│   │   │   │   └── Header.jsx
+│   │   │   │
+│   │   │   ├── hooks/
+│   │   │   │   └── usePagination.js         # NEW
+│   │   │   │
 │   │   │   ├── services/
 │   │   │   │   └── api.js
 │   │   │   │
@@ -263,9 +299,22 @@ smart-highway-tolling-system/
 │ phone_number │        │user_id (FK)  │        │  longitude   │
 │ created_at   │        │registered_at │        │  timestamp   │
 └──────────────┘        └──────────────┘        │  highway_id  │
-       │1                                       │  distance    │
-       │                                        │  is_on_hwy   │
-       │                                        └──────────────┘
+       │1                      │1               │  distance    │
+       │                       │*               │  is_on_hwy   │
+       │                       ↓                └──────────────┘
+       │               ┌──────────────┐
+       │               │   Vehicle    │
+       │               │  Requests    │ ◄── NEW
+       │               │──────────────│
+       │               │  id (PK)     │
+       │               │  vehicle_id  │
+       │               │  user_id     │
+       │               │  request_type│
+       │               │  new_owner_id│
+       │               │  reason      │
+       │               │  status      │
+       │               │  admin_notes │
+       │               └──────────────┘
        │1
        ↓
 ┌──────────────┐        ┌──────────────┐        ┌──────────────┐
@@ -294,6 +343,19 @@ smart-highway-tolling-system/
 │due_date      │        │  review_stat │
 │created_at    │        │  reviewed_at │
 └──────────────┘        └──────────────┘
+
+┌──────────────┐        ┌──────────────┐
+│   Profile    │        │    User      │
+│  Requests    │ NEW    │Notifications │ NEW
+│──────────────│        │──────────────│
+│  id (PK)     │        │  id (PK)     │
+│  user_id     │        │  user_id     │
+│  new_name    │        │  message     │
+│  new_email   │        │  is_read     │
+│  new_phone   │        │  created_at  │
+│  status      │        │  linked_req  │
+│  admin_notes │        └──────────────┘
+└──────────────┘
 ```
 
 ### Table Details
@@ -306,6 +368,9 @@ smart-highway-tolling-system/
 6. **highway_usage** - Entry/exit sessions for billing
 7. **bills** - Monthly consolidated toll bills
 8. **data_anomalies** - Fraud detection flags
+9. **vehicle_requests** *(NEW)* - Pending/Approved/Rejected queues for vehicle lifecycle stages (Add, Scrap, Sell, Deactivate, Modify)
+10. **profile_requests** *(NEW)* - Pending user profile modification requests (Phone number, Name, Email)
+11. **user_notifications** *(NEW)* - Real-time alerts tied to Admin approval flows
 
 ---
 
@@ -683,6 +748,61 @@ GET http://localhost:8080/api/anomalies/pending
 GET http://localhost:8080/api/anomalies/vehicle/1
 ```
 
+### Request Management APIs *(NEW)*
+
+**Get All Pending Vehicle Requests (Admin)**
+```http
+GET http://localhost:8080/api/vehicle-requests
+```
+
+**Submit New Vehicle Request (User)**
+```http
+POST http://localhost:8080/api/vehicle-requests
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "requestType": "SELL",
+  "vehicleId": 4,
+  "newOwnerUserId": 12,
+  "reason": "Selling my truck to a friend"
+}
+```
+
+> **Supported `requestType` values:** `ADD`, `DEACTIVATE`, `SELL`, `SCRAP`, `MODIFY`
+
+**Approve Vehicle Request (Admin)**
+```http
+PUT http://localhost:8080/api/vehicle-requests/5/approve
+Content-Type: application/json
+
+{
+  "adminNotes": "Approved ownership transfer."
+}
+```
+
+**Reject Vehicle Request (Admin)**
+```http
+PUT http://localhost:8080/api/vehicle-requests/5/reject
+Content-Type: application/json
+
+{
+  "adminNotes": "Insufficient documentation provided."
+}
+```
+
+### Notification APIs *(NEW)*
+
+**Get User Notifications**
+```http
+GET http://localhost:8080/api/notifications/user/1
+```
+
+**Mark Notifications as Read**
+```http
+PUT http://localhost:8080/api/notifications/user/1/mark-read
+```
+
 ---
 
 ## ✨ Key Features Implemented
@@ -735,11 +855,27 @@ GET http://localhost:8080/api/anomalies/vehicle/1
 - System statistics
 - Vehicle monitoring
 - Anomaly review interface
+- Request approval queue
 
 ### 10. Automated Billing 🚧 (Under Development)
 - Monthly bill generation
 - Email notifications
 - Payment status tracking
+
+### 11. Smart Request System 🚀 *(NEW)*
+- **View-only User State:** Direct destructive and modification actions are disabled for standard users for system security
+- **Admin Review Queue:** Users submit requests (`Profile Update Request` or `Vehicle Lifecycle Requests`) which queue in the admin dashboard for review
+- **Vehicle Lifecycle Management:** Five distinct request types for complete vehicle management: `ADD`, `DEACTIVATE`, `SELL`, `SCRAP`, `MODIFY`
+- **Fraud Prevention:** Scraped vehicles cannot be resurrected once marked. Sell requests strictly require valid target User IDs to prevent ghost transfers
+
+### 12. Live Real-Time Polling & Notifications 🛎️ *(NEW)*
+- **Top-Nav Notification Bell:** A modern UI component embedded in the top navigation bar that automatically polls the backend (`/api/notifications`) every 30 seconds
+- **Action Feedback:** Admins approving or rejecting requests automatically trigger database-level notifications delivered to the relevant user
+- **Admin Notes Attached:** When an admin rejects a profile update request, their rejection reason and notes are surfaced directly inside the user's notification drop-down for full transparency
+
+### 13. Interactive IoT Tracking & Maps 🗺️ *(NEW)*
+- **React-Leaflet Integration:** The frontend now renders dynamic route tracking maps powered by the React-Leaflet library — no external paid map service required
+- **Live Marker Tracking:** Vehicles simulated by the IoT engine visually trace their actual GeoJSON route paths across the map interface in real time, giving administrators a clear view of vehicle movement
 
 ---
 
@@ -768,6 +904,7 @@ GET http://localhost:8080/api/anomalies/vehicle/1
 4. Watch GPS data being sent to backend
 5. Check location_tracking table in MySQL
 6. Verify distance accumulation in highway_usage table
+7. Observe live route being drawn on the map in the frontend
 ```
 
 ### Test Scenario 3: Anomaly Detection
@@ -776,6 +913,28 @@ GET http://localhost:8080/api/anomalies/vehicle/1
 2. Wait for 2+ hours (or adjust time in code for testing)
 3. Check anomalies API: GET /api/anomalies/pending
 4. Verify MISSING_DATA anomaly is flagged
+```
+
+### Test Scenario 4: Smart Request Workflow *(NEW)*
+```bash
+1. Open http://localhost:3000 and navigate to "Vehicles" page
+2. Submit a SELL request for a vehicle (provide a valid target User ID)
+3. Navigate to "Admin" dashboard
+4. Find the pending request in the approval queue
+5. Approve or reject the request with admin notes
+6. Switch back to the user view
+7. Check the Notification Bell in the top navigation
+8. Confirm the approval/rejection notification has appeared
+```
+
+### Test Scenario 5: Profile Update Request *(NEW)*
+```bash
+1. Navigate to "Users" page
+2. Attempt to update your profile — note direct edits are blocked
+3. Submit a "Profile Update Request" with new name/email/phone
+4. Log in as Admin and approve the request
+5. Verify the user profile has been updated
+6. Check that the user received a notification with admin notes
 ```
 
 ---
@@ -827,6 +986,34 @@ Solution:
 - Verify API base URL in frontend/src/services/api.js
 ```
 
+**Issue 6: Map not rendering in Locations page** *(NEW)*
+```
+Solution:
+- Ensure react-leaflet and leaflet packages are installed:
+  npm install react-leaflet leaflet
+- Verify the Leaflet CSS is imported in your component or index.css:
+  import 'leaflet/dist/leaflet.css';
+- Check that GPS data exists for the vehicle before opening the map view
+```
+
+**Issue 7: Notification bell not updating** *(NEW)*
+```
+Solution:
+- Verify backend is running and /api/notifications/user/{id} returns a valid response
+- Check browser console for polling errors (network tab)
+- Confirm the logged-in user ID is being passed correctly to the notification API call
+- Polling interval is 30 seconds — wait or trigger a new admin action to see update
+```
+
+**Issue 8: Vehicle request stuck in PENDING** *(NEW)*
+```
+Solution:
+- Log in as Admin and navigate to the Admin dashboard
+- Check the "Pending Requests" section for unreviewed items
+- Approve or reject the request — status will update immediately
+- If the request disappears without notification, check the user_notifications table in MySQL
+```
+
 ---
 
 ## 👨‍💻 Author Information
@@ -858,6 +1045,7 @@ This project would not have been possible without the support and guidance of:
 - **Spring Framework Team** for the robust Spring Boot framework
 - **React Team** for the powerful and flexible React library
 - **MySQL Community** for the reliable database system
+- **React-Leaflet & Leaflet.js Teams** for the open-source interactive mapping library
 - **Stack Overflow Community** for countless solutions and best practices
 - **Family & Friends** for their continuous support and encouragement
 
@@ -884,7 +1072,7 @@ Unauthorized commercial use, redistribution, or plagiarism is strictly prohibite
 
 ### Current Status: Under Active Development
 
-#### ✅ Completed Features (70%)
+#### ✅ Completed Features (85%)
 - [x] Backend API architecture
 - [x] Database schema design
 - [x] GPS data processing
@@ -895,17 +1083,20 @@ Unauthorized commercial use, redistribution, or plagiarism is strictly prohibite
 - [x] IoT simulator module
 - [x] Frontend UI pages
 - [x] Highway usage tracking
+- [x] Smart request system (Vehicle & Profile lifecycle)
+- [x] Real-time notification polling & bell UI
+- [x] Interactive map with React-Leaflet route visualization
 
-#### 🚧 In Progress (20%)
+#### 🚧 In Progress (10%)
 - [ ] Automated monthly billing
 - [ ] Email notification system
 - [ ] Admin dashboard enhancements
 - [ ] Payment gateway integration
 - [ ] User authentication & authorization
 
-#### 📋 Planned Features (10%)
+#### 📋 Planned Features (5%)
 - [ ] Mobile application
-- [ ] Real-time notifications
+- [ ] Real-time notifications (WebSocket upgrade)
 - [ ] Advanced analytics
 - [ ] Google Maps integration
 - [ ] Multi-language support
@@ -940,12 +1131,15 @@ For queries, suggestions, or technical support related to this project:
 - IoT Simulator Manual
 - Toll Calculation Logic
 - API Integration Guide
+- Smart Request System Guide *(NEW)*
+- Notification System Architecture *(NEW)*
 
 ### External Resources
 - [Spring Boot Documentation](https://spring.io/projects/spring-boot)
 - [React Official Docs](https://react.dev/learn)
 - [MySQL Reference Manual](https://dev.mysql.com/doc/)
 - [Haversine Formula](https://en.wikipedia.org/wiki/Haversine_formula)
+- [React-Leaflet Documentation](https://react-leaflet.js.org/)
 
 ---
 
@@ -964,13 +1158,13 @@ If you find this project helpful for learning or as a reference for your own aca
 
 ---
 
-**Last Updated:** February 4, 2026  
-**Version:** 2.0.0-SNAPSHOT  
+**Last Updated:** March 30, 2026  
+**Version:** 2.1.0-SNAPSHOT  
 **Build Status:** 🚧 Under Development  
-**Completion:** ~70%
+**Completion:** ~85%
 
 ---
 
 **README.md - Comprehensive Project Documentation**  
-**Total Lines:** 650+  
+**Total Lines:** 750+  
 **Maintained By:** Albert J

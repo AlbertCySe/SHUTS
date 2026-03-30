@@ -1,0 +1,101 @@
+/* ==========================================
+   BUTTON STYLES - Primary, Bulk, Toggle
+   ========================================== */
+
+/* Base Button */
+.btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.1s;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+/* Primary Button */
+.btn-primary {
+    background-color: #3498db;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #2980b9;
+}
+
+/* Bulk Action Buttons */
+.btn-bulk {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.1s;
+}
+
+.btn-bulk:hover {
+    transform: translateY(-1px);
+}
+
+.btn-bulk:active {
+    transform: translateY(0);
+}
+
+.btn-activate {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn-activate:hover {
+    background-color: #218838;
+}
+
+.btn-deactivate {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-deactivate:hover {
+    background-color: #c82333;
+}
+
+/* Toggle Buttons */
+.btn-toggle {
+    padding: 6px 14px;
+    border: none;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    white-space: nowrap;
+}
+
+.btn-activate-single {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn-activate-single:hover {
+    background-color: #218838;
+    box-shadow: 0 2px 6px rgba(40, 167, 69, 0.3);
+}
+
+.btn-deactivate-single {
+    background-color: #ffc107;
+    color: #333;
+}
+
+.btn-deactivate-single:hover {
+    background-color: #e0a800;
+    box-shadow: 0 2px 6px rgba(255, 193, 7, 0.3);
+}

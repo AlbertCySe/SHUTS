@@ -22,7 +22,7 @@ echo.
 timeout /t 1 /nobreak >nul
 
 REM Check and load .env file
-echo [0/4] Checking environment configuration...
+echo [0/3] Checking environment configuration...
 if not exist ".env" (
     echo ⚠ .env file not found!
     echo.
@@ -75,7 +75,7 @@ echo ✓ Environment variables loaded
 echo.
 
 REM Check Java
-echo [1/4] Checking Java...
+echo [1/3] Checking Java...
 java -version 2>nul
 if errorlevel 1 (
     echo ❌ Java NOT found
@@ -88,7 +88,7 @@ echo ✓ Java installed
 echo.
 
 REM Check Node.js
-echo [2/4] Checking Node.js...
+echo [2/3] Checking Node.js...
 
 REM Try node command first (if in PATH)
 node -v >nul 2>&1
@@ -128,85 +128,92 @@ exit /b 1
 :nodejs_found
 echo.
 
-REM Check Maven
-echo [3/4] Checking Maven...
-set MAVEN_FOUND=0
-
-REM Try mvn command first (if in PATH)
-mvn -v >nul 2>&1
-if not errorlevel 1 (
-    echo ✓ Maven found in PATH
-    set MAVEN_FOUND=1
-    goto :maven_check_done
-)
-
-REM Check installation directory
-if exist "C:\Program Files\Apache\maven\bin\mvn.cmd" (
-    echo ✓ Maven found in C:\Program Files\Apache\maven
-    set "PATH=%PATH%;C:\Program Files\Apache\maven\bin"
-    set MAVEN_FOUND=1
-    goto :maven_check_done
-)
-
-REM Not found
-echo ⚠ Maven not found in system PATH
+REM Build backend
+echo [3/3] Building backend...
 echo.
-    echo ════════════════════════════════════════════════════════════
-    echo   MAVEN IS REQUIRED TO RUN THE BACKEND AUTOMATICALLY
-    echo ════════════════════════════════════════════════════════════
+
+REM Try Maven Wrapper first
+echo Attempting build with Maven Wrapper...
+call .\mvnw.cmd clean package -DskipTests >nul 2>&1
+if %errorlevel% EQU 0 (
+    echo ✓ Backend built successfully with Maven Wrapper
     echo.
-    echo You have 2 options:
-    echo.
-    echo   [Option 1] Install Maven (Recommended for auto-start)
-    echo   1. Download: https://maven.apache.org/download.cgi
-    echo   2. Extract to: C:\Program Files\Apache\maven
-    echo   3. Add to PATH: C:\Program Files\Apache\maven\bin
-    echo   4. Restart this script
-    echo.
-    echo   [Option 2] Use IntelliJ IDEA (No Maven install needed)
-    echo   1. Open IntelliJ IDEA
-    echo   2. Open this project folder
-    echo   3. Navigate to: TollingSystemApplication.java
-    echo   4. Right-click -^> Run
-    echo.
-    echo ════════════════════════════════════════════════════════════
-    echo.
-    choice /C 12 /M "Choose: [1] Install Maven first (Exit) or [2] Continue with manual backend"
-    
-    if errorlevel 3 (
-        echo.
-        echo Continuing without Maven...
-        echo You'll need to start backend manually.
-        echo.
-        set MAVEN_FOUND=0
-    )
-    if errorlevel 2 (
-        echo.
-        echo Please install Maven manually and run this script again.
-        echo.
-        pause
-        exit /b 0
-    )
-    if errorlevel 1 (
-        echo.
-        echo ════════════════════════════════════════════════════════════
-        echo   AUTO-INSTALLER INSTRUCTIONS
-        echo ════════════════════════════════════════════════════════════
-        echo.
-        echo 1. Close this window
-        echo 2. Right-click: install-maven.bat
-        echo 3. Select "Run as Administrator"
-        echo 4. Wait for installation to complete
-        echo 5. Run start-project.bat again
-        echo.
-        echo ════════════════════════════════════════════════════════════
-        pause
-        exit /b 0
-    )
+    goto :build_complete
 )
 
-:maven_check_done
+echo Maven Wrapper failed (network/firewall issue)
+echo Trying alternative build methods...
 echo.
+
+REM Fallback 1: Check for portable Maven (installed by fix-maven.bat)
+if not exist "C:\maven-portable\apache-maven-3.9.6\bin\mvn.cmd" goto :try_system_maven
+
+echo Using portable Maven (from fix-maven.bat)...
+call "C:\maven-portable\apache-maven-3.9.6\bin\mvn.cmd" clean package -DskipTests
+if errorlevel 1 goto :try_system_maven
+echo ✓ Backend built successfully with portable Maven
+echo.
+goto :build_complete
+
+:try_system_maven
+REM Fallback 2: Try system Maven
+call mvn -v >nul 2>&1
+if errorlevel 1 goto :maven_not_found
+
+echo Using system Maven...
+call mvn clean package -DskipTests
+if errorlevel 1 goto :maven_not_found
+echo ✓ Backend built successfully with system Maven
+echo.
+goto :build_complete
+
+:maven_not_found
+
+REM All build methods failed
+echo.
+echo ════════════════════════════════════════════════════════════
+echo   ⚠ MAVEN SETUP NEEDED
+echo ════════════════════════════════════════════════════════════
+echo.
+echo Don't worry! This is easy to fix.
+echo.
+echo ┌──────────────────────────────────────────────────────────┐
+echo │  OPTION 1: AUTO-FIX (Recommended - Takes 3 minutes)     │
+echo └──────────────────────────────────────────────────────────┘
+echo.
+echo   1. Close this window
+echo   2. Double-click: fix-maven.bat
+echo   3. Wait for it to finish
+echo   4. Run start-project.bat again
+echo.
+echo   The fix-maven.bat tool will:
+echo   → Download Maven automatically
+echo   → Install it for you
+echo   → Configure everything
+echo.
+echo ┌──────────────────────────────────────────────────────────┐
+echo │  OPTION 2: OFFLINE FIX (If Option 1 doesn't work)       │
+echo └──────────────────────────────────────────────────────────┘
+echo.
+echo   If you see "No internet" or download fails:
+echo.
+echo   1. On ANY computer with internet, download:
+echo      https://dlcdn.apache.org/maven/maven-3/3.9.6/binaries/apache-maven-3.9.6-bin.zip
+echo.
+echo   2. Copy the ZIP file to THIS computer's Desktop
+echo.
+echo   3. Double-click: install-maven-offline.bat
+echo.
+echo ════════════════════════════════════════════════════════════
+echo.
+echo TIP: Option 1 is easiest! Just run fix-maven.bat
+echo.
+pause
+exit /b 1
+
+:build_complete
+
+
 
 REM Check frontend
 if not exist "frontend\" (
@@ -239,22 +246,19 @@ echo ╚════════════════════════
 echo.
 
 REM Start backend with Maven
-if %MAVEN_FOUND%==1 (
-    echo [Backend] Starting with Maven...
-    start "Backend - Spring Boot" cmd /c "title BACKEND SERVER (Port 8080) & color 0B & echo Starting Spring Boot backend... & echo. & mvn spring-boot:run & echo. & echo Backend stopped. & pause"
-    echo ✓ Backend started in BLUE window
-    echo   URL: http://localhost:8080
-    echo.
-    echo Waiting 12 seconds for backend to initialize...
-    timeout /t 12 /nobreak >nul
-) else (
-    echo [Backend] Skipped - Maven not available
-    echo.
-    echo ⚠ START BACKEND MANUALLY:
-    echo   Open IntelliJ IDEA -^> Run TollingSystemApplication.java
-    echo.
-    pause
-)
+echo [Backend] Starting backend server...
+
+REM Run the JAR file directly (more reliable than spring-boot:run)
+start "Backend - Spring Boot" cmd /c "cd /d "%~dp0" & title BACKEND SERVER (Port 8080) & color 0B & echo Starting Spring Boot backend... & echo. & java -jar target\tolling-system-1.0.0.jar & echo. & echo Backend stopped. & pause"
+echo ✓ Backend started in BLUE window
+echo   URL: http://localhost:8080
+echo.
+echo Waiting 12 seconds for backend to initialize...
+timeout /t 12 /nobreak >nul
+
+
+
+
 
 REM Start frontend
 echo [Frontend] Starting with npm...
@@ -274,17 +278,10 @@ echo ╔════════════════════════
 echo ║                    STATUS SUMMARY                          ║
 echo ╚════════════════════════════════════════════════════════════╝
 echo.
-if %MAVEN_FOUND%==1 (
-    echo ✓ Backend:  http://localhost:8080 (BLUE window)
-    echo ✓ Frontend: http://localhost:3000 (YELLOW window)
-    echo.
-    echo Both services running! Check the colored terminal windows.
-) else (
-    echo ⚠ Backend:  NOT STARTED - Start manually with IntelliJ
-    echo ✓ Frontend: http://localhost:3000 (YELLOW window)
-    echo.
-    echo Frontend is running. Start backend manually.
-)
+echo ✓ Backend:  http://localhost:8080 (BLUE window)
+echo ✓ Frontend: http://localhost:3000 (YELLOW window)
+echo.
+echo Both services running! Check the colored terminal windows.
 echo.
 echo Close the colored terminal windows to stop servers.
 echo.

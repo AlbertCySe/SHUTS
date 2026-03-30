@@ -62,6 +62,21 @@ export const putRequest = async (endpoint, data) => {
 };
 
 /**
+ * Generic PATCH request
+ * @param {string} endpoint - API endpoint (e.g., '/vehicles/1/toggle-status')
+ * @returns {Promise} Response data or error
+ */
+export const patchRequest = async (endpoint) => {
+    try {
+        const response = await api.patch(endpoint);
+        return response.data;
+    } catch (error) {
+        console.error('PATCH request failed:', error.message);
+        throw error;
+    }
+};
+
+/**
  * Generic DELETE request
  * @param {string} endpoint - API endpoint (e.g., '/users/1')
  * @returns {Promise} Response data or error

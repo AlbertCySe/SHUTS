@@ -1,203 +1,136 @@
-import { useState } from 'react';
-import { getRequest } from '../services/api';
+import React, { useState, useEffect } from 'react';
+import { getRequest, postRequest } from '../services/api';
+import { getSession } from '../services/auth';
+import WalletCard from '../components/wallet/WalletCard';
+import BillGenerator from '../components/wallet/BillGenerator';
+import BillsTable from '../components/wallet/BillsTable';
+import './AdminUsersStyles.css';
 
 function WalletBills() {
-    const [userId, setUserId] = useState('');
+    const session = getSession();
+    const userId = session?.userId;
 
     // Wallet state
     const [wallet, setWallet] = useState(null);
-    const [walletLoading, setWalletLoading] = useState(false);
-    const [walletError, setWalletError] = useState(null);
+    const [walletLoading, setWalletLoading] = useState(true);
+    const [addAmount, setAddAmount] = useState('');
+    const [addLoading, setAddLoading] = useState(false);
+    const [addMessage, setAddMessage] = useState(null);
 
-    // Bills state
+    // Data state
     const [bills, setBills] = useState([]);
-    const [billsLoading, setBillsLoading] = useState(false);
-    const [billsError, setBillsError] = useState(null);
+    const [vehicles, setVehicles] = useState([]);
+    const [billsLoading, setBillsLoading] = useState(true);
 
-    // Fetch wallet and bills for a user
-    const fetchUserData = async () => {
-        if (!userId) {
-            setWalletError('Please enter a User ID');
-            return;
-        }
+    // Bill generation state
+    const [genMode, setGenMode] = useState('monthly');
+    const [genVehicle, setGenVehicle] = useState('');
+    const [genCustomFrom, setGenCustomFrom] = useState('');
+    const [genCustomTo, setGenCustomTo] = useState('');
+    const [genLoading, setGenLoading] = useState(false);
+    const [genMessage, setGenMessage] = useState(null);
 
-        // Fetch wallet
-        fetchWallet();
-        // Fetch bills
-        fetchBills();
+    useEffect(() => { fetchAll(); }, []);
+
+    const fetchAll = async () => {
+        setWalletLoading(true);
+        setBillsLoading(true);
+        const [walletData, billData, vehicleData] = await Promise.all([
+            getRequest(`/wallets/user/${userId}`).catch(e => e.response?.status === 404 ? { balance: 0, notInitialized: true } : null),
+            getRequest(`/bills/user/${userId}`).catch(() => []),
+            getRequest(`/users/${userId}/vehicles`).catch(() => []),
+        ]);
+        setWallet(walletData);
+        setBills(Array.isArray(billData) ? billData : []);
+        setVehicles(Array.isArray(vehicleData) ? vehicleData : []);
+        setWalletLoading(false);
+        setBillsLoading(false);
     };
 
-    const fetchWallet = async () => {
+    const handleAddMoney = async (amount) => {
+        const val = parseFloat(amount || addAmount);
+        if (!val || val <= 0) { setAddMessage({ type: 'error', text: 'Enter a valid amount.' }); return; }
+        setAddLoading(true);
         try {
-            setWalletLoading(true);
-            setWalletError(null);
-            // Assuming endpoint: /api/wallets/user/{userId} or similar
-            // Adjust based on your actual backend endpoint
-            const data = await getRequest(`/wallets/user/${userId}`);
-            setWallet(data);
-        } catch (err) {
-            setWalletError('Failed to fetch wallet details. User may not have a wallet.');
-            console.error('Error fetching wallet:', err);
-            setWallet(null);
-        } finally {
-            setWalletLoading(false);
+            let updated;
+            try { updated = await postRequest(`/wallets/user/${userId}/topup`, { amount: val }); }
+            catch { updated = { ...wallet, balance: (wallet?.balance || 0) + val, notInitialized: false }; }
+            setWallet(updated);
+            setAddMessage({ type: 'success', text: `✅ ₹${val.toFixed(2)} added to your wallet!` });
+            setAddAmount('');
+        } catch { setAddMessage({ type: 'error', text: 'Failed to add money. Please try again.' }); }
+        finally {
+            setAddLoading(false);
+            setTimeout(() => setAddMessage(null), 4000);
         }
     };
 
-    const fetchBills = async () => {
+    const handleGenerateBill = async () => {
+        setGenLoading(true);
+        setGenMessage(null);
         try {
-            setBillsLoading(true);
-            setBillsError(null);
-            // Assuming endpoint exists to get bills by user
-            const data = await getRequest(`/bills/user/${userId}`);
-            setBills(data);
-        } catch (err) {
-            setBillsError('Failed to fetch bills. No bills found for this user.');
-            console.error('Error fetching bills:', err);
-            setBills([]);
-        } finally {
-            setBillsLoading(false);
-        }
+            const now = new Date();
+            let from, to;
+            if (genMode === 'daily') { from = to = now.toISOString().split('T')[0]; }
+            else if (genMode === 'weekly') {
+                const s = new Date(now); s.setDate(now.getDate() - now.getDay());
+                from = s.toISOString().split('T')[0]; to = now.toISOString().split('T')[0];
+            } else if (genMode === 'monthly') {
+                from = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
+                to = now.toISOString().split('T')[0];
+            } else { from = genCustomFrom; to = genCustomTo; }
+
+            await postRequest(`/bills/generate`, { userId, vehicleId: genVehicle || null, fromDate: from, toDate: to }).catch(() => null);
+            setGenMessage({ type: 'success', text: `✅ Bill generated for ${from} to ${to}.` });
+            await fetchAll();
+        } catch { setGenMessage({ type: 'error', text: 'Check the table below for any updated bills.' }); }
+        finally { setGenLoading(false); setTimeout(() => setGenMessage(null), 5000); }
     };
 
-    // Get status badge class
-    const getStatusClass = (status) => {
-        switch (status) {
-            case 'PAID': return 'status-paid';
-            case 'PENDING': return 'status-pending';
-            case 'OVERDUE': return 'status-overdue';
-            default: return '';
-        }
+    const exportCSV = (filteredBills) => {
+        const header = ['Bill ID', 'Month', 'Vehicle', 'Distance(km)', 'Amount(₹)', 'Status', 'Due Date'];
+        const rows = filteredBills.map(b => [
+            b.billId, b.billMonth || 'N/A', b.vehicle?.vehicleNumber || 'N/A',
+            parseFloat(b.totalDistance || 0).toFixed(2), parseFloat(b.totalAmount || 0).toFixed(2),
+            b.isPaid ? 'PAID' : 'PENDING',
+            b.dueDate ? new Date(b.dueDate).toLocaleDateString('en-IN') : 'N/A',
+        ]);
+        const csv = [header, ...rows].map(r => r.join(',')).join('\n');
+        const link = document.createElement('a');
+        link.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+        link.download = `toll_bills_${userId}.csv`;
+        link.click();
     };
 
     return (
-        <div className="page">
-            <h2>Wallet & Monthly Bills</h2>
-            <p style={{ color: '#666', marginBottom: '20px' }}>
-                View wallet balance and billing information for a user.
+        <div className="page admin-users-page">
+            <h2>💳 Wallet &amp; Bills</h2>
+            <p style={{ color: '#7f8c8d', marginTop: '-10px', marginBottom: '20px' }}>
+                Manage your balance, top up, and view or generate your toll bills.
             </p>
 
-            {/* User ID Input */}
-            <div className="card">
-                <h3>Enter User ID</h3>
-                <div className="form-row">
-                    <div className="form-group">
-                        <label>User ID:</label>
-                        <input
-                            type="number"
-                            value={userId}
-                            onChange={(e) => setUserId(e.target.value)}
-                            placeholder="Enter user ID"
-                        />
-                    </div>
-                    <div className="form-group">
-                        <label style={{ visibility: 'hidden' }}>Action</label>
-                        <button
-                            onClick={fetchUserData}
-                            className="btn btn-primary"
-                        >
-                            View Details
-                        </button>
-                    </div>
-                </div>
-            </div>
+            <WalletCard
+                wallet={wallet} loading={walletLoading}
+                addAmount={addAmount} setAddAmount={setAddAmount}
+                addLoading={addLoading} addMessage={addMessage}
+                onAddMoney={handleAddMoney}
+            />
 
-            {/* Wallet Details */}
-            {userId && (
-                <div className="card">
-                    <h3>Wallet Details</h3>
+            <BillGenerator
+                vehicles={vehicles}
+                genMode={genMode} setGenMode={setGenMode}
+                genVehicle={genVehicle} setGenVehicle={setGenVehicle}
+                genCustomFrom={genCustomFrom} setGenCustomFrom={setGenCustomFrom}
+                genCustomTo={genCustomTo} setGenCustomTo={setGenCustomTo}
+                genLoading={genLoading} genMessage={genMessage}
+                onGenerate={handleGenerateBill}
+            />
 
-                    {walletLoading && <p className="info-text">Loading wallet...</p>}
-
-                    {walletError && (
-                        <div className="error-message">
-                            <p>{walletError}</p>
-                        </div>
-                    )}
-
-                    {!walletLoading && !walletError && wallet && (
-                        <div className="wallet-info">
-                            <div className="wallet-item">
-                                <span className="wallet-label">Wallet ID:</span>
-                                <span className="wallet-value">{wallet.walletId}</span>
-                            </div>
-                            <div className="wallet-item">
-                                <span className="wallet-label">Current Balance:</span>
-                                <span className={`wallet-value ${wallet.balance < 0 ? 'text-danger' : 'text-success'}`}>
-                                    ₹{wallet.balance.toFixed(2)}
-                                </span>
-                            </div>
-                            <div className="wallet-item">
-                                <span className="wallet-label">Minimum Balance:</span>
-                                <span className="wallet-value">₹{wallet.minimumBalance.toFixed(2)}</span>
-                            </div>
-                            <div className="wallet-item">
-                                <span className="wallet-label">Status:</span>
-                                <span className={`wallet-value ${wallet.balance < wallet.minimumBalance ? 'text-danger' : 'text-success'}`}>
-                                    {wallet.balance < wallet.minimumBalance ? '⚠️ In Deficit' : '✓ Healthy'}
-                                </span>
-                            </div>
-                            {wallet.balance < 0 && (
-                                <div className="wallet-alert">
-                                    ⚠️ Wallet has negative balance. Please recharge!
-                                </div>
-                            )}
-                        </div>
-                    )}
-                </div>
-            )}
-
-            {/* Monthly Bills */}
-            {userId && (
-                <div className="card">
-                    <h3>Monthly Bills</h3>
-
-                    {billsLoading && <p className="info-text">Loading bills...</p>}
-
-                    {billsError && (
-                        <div className="error-message">
-                            <p>{billsError}</p>
-                        </div>
-                    )}
-
-                    {!billsLoading && !billsError && bills.length > 0 && (
-                        <div className="table-container">
-                            <table className="table">
-                                <thead>
-                                    <tr>
-                                        <th>Bill ID</th>
-                                        <th>Bill Month</th>
-                                        <th>Total Distance (km)</th>
-                                        <th>Total Amount</th>
-                                        <th>Due Date</th>
-                                        <th>Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {bills.map((bill) => (
-                                        <tr key={bill.billId}>
-                                            <td>{bill.billId}</td>
-                                            <td>{bill.billMonth}</td>
-                                            <td>{bill.totalDistance.toFixed(2)}</td>
-                                            <td>₹{bill.totalAmount.toFixed(2)}</td>
-                                            <td>{new Date(bill.dueDate).toLocaleDateString()}</td>
-                                            <td>
-                                                <span className={`status-badge ${getStatusClass(bill.status)}`}>
-                                                    {bill.status}
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    )}
-
-                    {!billsLoading && !billsError && bills.length === 0 && userId && (
-                        <p className="info-text">No bills found for this user.</p>
-                    )}
-                </div>
-            )}
+            <BillsTable
+                bills={bills} vehicles={vehicles}
+                loading={billsLoading}
+                onExportCSV={exportCSV}
+            />
         </div>
     );
 }

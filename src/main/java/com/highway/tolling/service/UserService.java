@@ -2,6 +2,8 @@ package com.highway.tolling.service;
 
 import com.highway.tolling.model.User;
 import com.highway.tolling.repository.UserRepository;
+import com.highway.tolling.repository.WalletRepository;
+import com.highway.tolling.model.Wallet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,10 +18,12 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final WalletRepository walletRepository;
 
     @Autowired
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, WalletRepository walletRepository) {
         this.userRepository = userRepository;
+        this.walletRepository = walletRepository;
     }
 
     /**
@@ -97,6 +101,11 @@ public class UserService {
         if (!userRepository.existsById(userId)) {
             throw new RuntimeException("User not found with id: " + userId);
         }
+        
+        // Delete associated wallet first to prevent foreign key constraint violations
+        Optional<Wallet> wallet = walletRepository.findByUser_UserId(userId);
+        wallet.ifPresent(walletRepository::delete);
+
         userRepository.deleteById(userId);
     }
 }

@@ -3,6 +3,8 @@ package com.highway.tolling.service;
 import com.highway.tolling.model.Vehicle;
 import com.highway.tolling.repository.VehicleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -43,6 +45,16 @@ public class VehicleService {
      */
     public List<Vehicle> getAllVehicles() {
         return vehicleRepository.findAll();
+    }
+
+    /**
+     * Get all registered vehicles with pagination support
+     * 
+     * @param pageable pagination information (page, size, sort)
+     * @return page of vehicles
+     */
+    public Page<Vehicle> getAllVehicles(Pageable pageable) {
+        return vehicleRepository.findAll(pageable);
     }
 
     /**
@@ -92,5 +104,21 @@ public class VehicleService {
             throw new RuntimeException("Vehicle not found with id: " + id);
         }
         vehicleRepository.deleteById(id);
+    }
+
+    /**
+     * Toggle vehicle status between ACTIVE and INACTIVE
+     * 
+     * @param id the vehicle ID
+     * @return the updated vehicle
+     */
+    public Vehicle toggleVehicleStatus(Long id) {
+        Vehicle vehicle = vehicleRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Vehicle not found with id: " + id));
+        
+        String newStatus = "ACTIVE".equalsIgnoreCase(vehicle.getStatus()) ? "INACTIVE" : "ACTIVE";
+        vehicle.setStatus(newStatus);
+        
+        return vehicleRepository.save(vehicle);
     }
 }

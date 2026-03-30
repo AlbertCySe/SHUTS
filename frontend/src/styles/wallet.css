@@ -1,0 +1,385 @@
+/* ==========================================
+   WALLET & BILLING SPECIFIC STYLES
+   ========================================== */
+
+/* Wallet Info Container */
+.wallet-info {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 6px;
+}
+
+.wallet-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.wallet-item:last-child {
+    border-bottom: none;
+}
+
+.wallet-label {
+    font-weight: 600;
+    color: #495057;
+}
+
+.wallet-value {
+    font-size: 18px;
+    font-weight: 500;
+}
+
+/* Wallet Alert */
+.wallet-alert {
+    margin-top: 15px;
+    padding: 12px;
+    background-color: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 4px;
+    color: #856404;
+    text-align: center;
+    font-weight: 500;
+}
+
+/* Wallet Notice */
+.wallet-notice {
+    background: #f0f8ff;
+    border-left: 4px solid #3498db;
+    padding: 12px 15px;
+    margin-top: 15px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.wallet-notice .notice-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.wallet-notice span:not(.notice-icon) {
+    color: #34495e;
+    font-size: 14px;
+}
+
+/* ==========================================
+   ENHANCED WALLET STATUS CARD
+   ========================================== */
+
+/* Warning Banners */
+.wallet-banner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px 20px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    font-weight: 600;
+    font-size: 15px;
+}
+
+.wallet-banner-danger {
+    background-color: #fee;
+    border: 2px solid #dc3545;
+    color: #721c24;
+}
+
+.wallet-banner-warning {
+    background-color: #fff3cd;
+    border: 2px solid #ffc107;
+    color: #856404;
+}
+
+.banner-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.banner-text {
+    flex: 1;
+}
+
+/* Wallet Status Card */
+.wallet-status-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 30px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+/* Balance Display */
+.wallet-balance-display {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.balance-label {
+    font-size: 14px;
+    opacity: 0.9;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.balance-amount {
+    font-size: 48px;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.balance-amount.positive {
+    color: #4ade80;
+}
+
+.balance-amount.low {
+    color: #fbbf24;
+}
+
+.balance-amount.negative {
+    color: #ef4444;
+}
+
+/* Wallet Details Row */
+.wallet-details-row {
+    display: flex;
+    justify-content: space-around;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.wallet-detail {
+    text-align: center;
+}
+
+.detail-label {
+    display: block;
+    font-size: 12px;
+    opacity: 0.8;
+    margin-bottom: 5px;
+}
+
+.detail-value {
+    display: block;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+/* ==========================================
+   RECHARGE SECTION
+   ========================================== */
+
+.wallet-recharge-section {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 6px;
+    margin-top: 20px;
+}
+
+.wallet-recharge-section h4 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+    font-size: 18px;
+}
+
+.recharge-controls {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.recharge-input {
+    flex: 1;
+    min-width: 200px;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    transition: border-color 0.3s;
+}
+
+.recharge-input:focus {
+    outline: none;
+    border-color: #28a745;
+}
+
+.btn-recharge {
+    padding: 12px 24px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.1s;
+}
+
+.btn-recharge:hover {
+    background-color: #218838;
+    transform: translateY(-1px);
+}
+
+.btn-recharge:active {
+    transform: translateY(0);
+}
+
+/* ==========================================
+   BILLS CONTROLS & FILTERS
+   ========================================== */
+
+.bills-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 6px;
+}
+
+.filter-label {
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 14px;
+}
+
+.bills-filter-select {
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: white;
+    cursor: pointer;
+    transition: border-color 0.3s;
+    min-width: 150px;
+}
+
+.bills-filter-select:focus {
+    outline: none;
+    border-color: #3498db;
+}
+
+/* Bills Table Enhancements */
+.bills-table {
+    margin-top: 0;
+}
+
+.bills-table tbody tr {
+    transition: background-color 0.2s;
+}
+
+.bills-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+/* Download Button */
+.btn-download {
+    padding: 6px 12px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    white-space: nowrap;
+}
+
+.btn-download:hover {
+    background-color: #2980b9;
+}
+
+/* ==========================================
+   PAGINATION
+   ========================================== */
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #dee2e6;
+}
+
+.pagination-btn {
+    padding: 8px 16px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.pagination-btn:hover:not(:disabled) {
+    background-color: #2980b9;
+}
+
+.pagination-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.pagination-info {
+    font-weight: 600;
+    color: #495057;
+    font-size: 14px;
+}
+
+/* ==========================================
+   RESPONSIVE DESIGN
+   ========================================== */
+
+@media (max-width: 768px) {
+    .wallet-status-card {
+        padding: 20px;
+    }
+
+    .balance-amount {
+        font-size: 36px;
+    }
+
+    .wallet-details-row {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .recharge-controls {
+        flex-direction: column;
+    }
+
+    .recharge-input {
+        width: 100%;
+    }
+
+    .btn-recharge {
+        width: 100%;
+    }
+
+    .bills-controls {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .bills-filter-select {
+        width: 100%;
+    }
+
+    .pagination {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .pagination-btn {
+        width: 100%;
+    }
+}

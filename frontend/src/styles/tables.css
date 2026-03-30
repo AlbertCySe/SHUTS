@@ -1,0 +1,66 @@
+/* ==========================================
+   TABLE STYLES - Base Tables & Enhanced
+   ========================================== */
+
+/* Table Container */
+.table-container {
+    overflow-x: auto;
+}
+
+/* Base Table */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.table thead {
+    background-color: #f8f9fa;
+}
+
+.table th {
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+    color: #2c3e50;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.table td {
+    padding: 12px;
+    border-bottom: 1px solid #dee2e6;
+    color: #495057;
+}
+
+.table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+/* Compact Table */
+.table-compact th,
+.table-compact td {
+    padding: 8px;
+    font-size: 13px;
+}
+
+.table-compact th {
+    white-space: nowrap;
+}
+
+/* Enhanced Vehicles Table */
+.vehicles-table tbody tr {
+    transition: background-color 0.2s, box-shadow 0.2s;
+}
+
+.vehicles-table tbody tr:hover {
+    background-color: #f8f9fa;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Checkbox in Tables */
+.checkbox-select {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #3498db;
+}
