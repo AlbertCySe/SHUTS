@@ -37,6 +37,14 @@ function DashboardSummaryCards({ userData, apiStatus }) {
                     <p>Last Highway Used</p>
                 </div>
             </div>
+
+            <div className="summary-card card-distance">
+                <div className="summary-icon">📏</div>
+                <div className="summary-content">
+                    <h3>{(userData.totalHighwayDistance || 0).toFixed(1)} km</h3>
+                    <p>Total Highway Distance</p>
+                </div>
+            </div>
         </div>
     );
 }

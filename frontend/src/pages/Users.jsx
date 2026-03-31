@@ -1,140 +1,192 @@
-import { useState } from 'react';
-import { postRequest } from '../services/api';
+import React, { useState, useEffect } from 'react';
+import { getRequest } from '../services/api';
+import { getSession } from '../services/auth';
+import ProfileEditModal from '../components/users/ProfileEditModal';
+import './AdminUsersStyles.css'; // Reuse existing table styles
 
 function Users() {
-    // Form state
-    const [formData, setFormData] = useState({
-        name: '',
-        email: '',
-        phoneNumber: ''
-    });
-    const [formLoading, setFormLoading] = useState(false);
+    const [user, setUser] = useState(null);
+    const [requests, setRequests] = useState([]);
+    
+    const [loading, setLoading] = useState(true);
+    const [reqLoading, setReqLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    const [showEditModal, setShowEditModal] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
-    const [formError, setFormError] = useState('');
 
-    // Handle form input changes
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData({
-            ...formData,
-            [name]: value
-        });
-    };
+    const session = getSession();
+    const userId = session?.userId;
 
-    // Handle form submission
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
-        // Clear previous messages
-        setSuccessMessage('');
-        setFormError('');
-
-        // Basic validation
-        if (!formData.name || !formData.email || !formData.phoneNumber) {
-            setFormError('All fields are required');
-            return;
+    useEffect(() => {
+        if (userId) {
+            fetchUserProfile();
+            fetchProfileRequests();
+        } else {
+            setError('No active user session found.');
+            setLoading(false);
+            setReqLoading(false);
         }
+    }, [userId]);
 
+    const fetchUserProfile = async () => {
+        setLoading(true);
         try {
-            setFormLoading(true);
-
-            // Send POST request to create user
-            const newUser = await postRequest('/users', formData);
-
-            // Show success message
-            setSuccessMessage(`User "${newUser.name}" registered successfully! Check your email for login details.`);
-
-            // Clear form
-            setFormData({
-                name: '',
-                email: '',
-                phoneNumber: ''
-            });
-
-            // Clear success message after 5 seconds
-            setTimeout(() => {
-                setSuccessMessage('');
-            }, 5000);
-
+            const data = await getRequest(`/users/${userId}`);
+            setUser(data);
         } catch (err) {
-            setFormError('Failed to register. Please try again.');
-            console.error('Error creating user:', err);
+            console.error('Failed to fetch user profile:', err);
+            setError('Failed to load profile details.');
         } finally {
-            setFormLoading(false);
+            setLoading(false);
         }
     };
+
+    const fetchProfileRequests = async () => {
+        setReqLoading(true);
+        try {
+            const data = await getRequest(`/profile-requests/user/${userId}`);
+            setRequests(Array.isArray(data) ? data : []);
+        } catch (err) {
+            console.error('Failed to fetch profile requests:', err);
+            setRequests([]);
+        } finally {
+            setReqLoading(false);
+        }
+    };
+
+    const handleModalSuccess = () => {
+        setShowEditModal(false);
+        setSuccessMessage('✅ Profile update request submitted successfully. It is now pending admin review.');
+        fetchProfileRequests(); // Refresh requests table
+        
+        setTimeout(() => setSuccessMessage(''), 6000);
+    };
+
+    if (loading) {
+        return (
+            <div className="page admin-users-page">
+                <div className="card" style={{ textAlign: 'center', padding: '40px' }}>
+                    <p style={{ color: '#7f8c8d' }}>Loading profile...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (error || !user) {
+        return (
+            <div className="page admin-users-page">
+                <div className="card" style={{ textAlign: 'center', padding: '40px' }}>
+                    <p style={{ color: '#e74c3c' }}>{error || 'Profile not found.'}</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
-        <div className="page">
-            <h2>User Registration</h2>
+        <div className="page admin-users-page">
+            <h2>👤 My Profile Dashboard</h2>
 
-            {/* Create User Form */}
-            <div className="card">
-                <h3>Register New User</h3>
+            {successMessage && (
+                <div className="success-message" style={{ marginBottom: '20px' }}>
+                    <p>{successMessage}</p>
+                </div>
+            )}
 
-                {/* Success Message */}
-                {successMessage && (
-                    <div className="success-message">
-                        <p>{successMessage}</p>
-                    </div>
-                )}
-
-                {/* Form Error Message */}
-                {formError && (
-                    <div className="error-message">
-                        <p>{formError}</p>
-                    </div>
-                )}
-
-                <form className="form" onSubmit={handleSubmit}>
-                    <div className="form-group">
-                        <label>Name: *</label>
-                        <input
-                            type="text"
-                            name="name"
-                            value={formData.name}
-                            onChange={handleInputChange}
-                            placeholder="Enter full name"
-                            disabled={formLoading}
-                        />
+            {/* Profile Overview Card */}
+            <div className="card" style={{ marginBottom: '20px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
+                    <div>
+                        <h3 style={{ marginBottom: '15px', color: '#2c3e50', fontSize: '20px' }}>Profile Details</h3>
+                        <p style={{ marginBottom: '8px' }}><strong>Name:</strong> {user.name}</p>
+                        <p style={{ marginBottom: '8px' }}><strong>Email:</strong> {user.email}</p>
+                        <p style={{ marginBottom: '8px' }}><strong>Phone:</strong> {user.phoneNumber}</p>
+                        <p style={{ marginBottom: '0', color: '#7f8c8d', fontSize: '13px' }}>
+                            <strong>Member Since:</strong> {new Date(user.createdAt).toLocaleDateString()}
+                        </p>
                     </div>
 
-                    <div className="form-group">
-                        <label>Email: *</label>
-                        <input
-                            type="email"
-                            name="email"
-                            value={formData.email}
-                            onChange={handleInputChange}
-                            placeholder="Enter email address"
-                            disabled={formLoading}
-                        />
+                    <div style={{ alignSelf: 'flex-start' }}>
+                        <button 
+                            className="btn btn-primary" 
+                            style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px' }}
+                            onClick={() => setShowEditModal(true)}
+                        >
+                            <span>✏️</span> Request Profile Update
+                        </button>
                     </div>
-
-                    <div className="form-group">
-                        <label>Phone Number: *</label>
-                        <input
-                            type="tel"
-                            name="phoneNumber"
-                            value={formData.phoneNumber}
-                            onChange={handleInputChange}
-                            placeholder="Enter phone number"
-                            disabled={formLoading}
-                        />
-                    </div>
-
-                    <button
-                        type="submit"
-                        className="btn btn-primary"
-                        disabled={formLoading}
-                    >
-                        {formLoading ? 'Registering...' : 'Register User'}
-                    </button>
-                </form>
+                </div>
             </div>
+
+            {/* Requests History Card */}
+            <div className="card">
+                <h3 style={{ marginBottom: '15px', color: '#2c3e50', fontSize: '18px' }}>📋 My Update Requests</h3>
+                
+                {reqLoading ? (
+                    <p style={{ color: '#7f8c8d', fontSize: '14px', textAlign: 'center', padding: '20px' }}>Loading requests...</p>
+                ) : requests.length === 0 ? (
+                    <p style={{ color: '#7f8c8d', fontSize: '14px', textAlign: 'center', padding: '20px', backgroundColor: '#f9f9f9', borderRadius: '8px' }}>
+                        You have not submitted any profile update requests yet.
+                    </p>
+                ) : (
+                    <div className="table-container">
+                        <table className="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Requested Changes</th>
+                                    <th>Status</th>
+                                    <th>Admin Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {requests.map(req => {
+                                    // Identify what was actually requested
+                                    const changes = [];
+                                    if (req.newName) changes.push(`Name → ${req.newName}`);
+                                    if (req.newEmail) changes.push(`Email → ${req.newEmail}`);
+                                    if (req.newPhoneNumber) changes.push(`Phone → ${req.newPhoneNumber}`);
+
+                                    return (
+                                        <tr key={req.id}>
+                                            <td style={{ fontSize: '13px' }}>
+                                                {new Date(req.createdAt).toLocaleDateString()}<br/>
+                                                <span style={{ color: '#7f8c8d' }}>
+                                                    {new Date(req.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                {changes.length > 0 ? (
+                                                    <ul style={{ margin: '0', paddingLeft: '16px', fontSize: '13px' }}>
+                                                        {changes.map((c, i) => <li key={i}>{c}</li>)}
+                                                    </ul>
+                                                ) : <span style={{ color: '#95a5a6', fontStyle: 'italic' }}>No changes</span>}
+                                            </td>
+                                            <td>
+                                                <span className={`status-badge status-${req.status.toLowerCase()}`}>
+                                                    {req.status}
+                                                </span>
+                                            </td>
+                                            <td style={{ fontSize: '13px', color: req.status === 'REJECTED' ? '#c0392b' : '#34495e', maxWidth: '300px' }}>
+                                                {req.adminNotes || <span style={{ color: '#bdc3c7', fontStyle: 'italic' }}>None</span>}
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+            </div>
+
+            <ProfileEditModal 
+                show={showEditModal} 
+                initialData={user}
+                onClose={() => setShowEditModal(false)}
+                onSuccess={handleModalSuccess}
+            />
         </div>
     );
 }
 
 export default Users;
-

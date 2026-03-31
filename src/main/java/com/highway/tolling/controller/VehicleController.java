@@ -28,19 +28,6 @@ public class VehicleController {
         this.vehicleService = vehicleService;
     }
 
-    /**
-     * Register a new vehicle
-     * POST /api/vehicles
-     */
-    @PostMapping
-    public ResponseEntity<Vehicle> registerVehicle(@RequestBody Vehicle vehicle) {
-        try {
-            Vehicle registeredVehicle = vehicleService.registerVehicle(vehicle);
-            return new ResponseEntity<>(registeredVehicle, HttpStatus.CREATED);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-        }
-    }
 
     /**
      * Get all vehicles with optional pagination
@@ -86,16 +73,6 @@ public class VehicleController {
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    /**
-     * Get vehicle by vehicle number
-     * GET /api/vehicles/search?number={vehicleNumber}
-     */
-    @GetMapping("/search")
-    public ResponseEntity<Vehicle> getVehicleByNumber(@RequestParam String number) {
-        return vehicleService.getVehicleByNumber(number)
-                .map(vehicle -> new ResponseEntity<>(vehicle, HttpStatus.OK))
-                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
-    }
 
     /**
      * Update vehicle information
@@ -139,12 +116,4 @@ public class VehicleController {
         }
     }
 
-    /**
-     * Health check endpoint
-     * GET /api/vehicles/health
-     */
-    @GetMapping("/health")
-    public ResponseEntity<String> healthCheck() {
-        return new ResponseEntity<>("Tolling System API is running!", HttpStatus.OK);
-    }
 }

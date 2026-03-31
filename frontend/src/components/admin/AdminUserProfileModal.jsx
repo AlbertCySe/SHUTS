@@ -116,12 +116,6 @@ export default function AdminUserProfileModal({ viewingUser, setViewingUser }) {
                                 {loadingStats ? '...' : `₹${totalTollsPaid.toFixed(2)}`}
                             </div>
                         </div>
-                        <div style={{ flex: '1', backgroundColor: '#eef2f5', padding: '12px', borderRadius: '8px', textAlign: 'center' }}>
-                            <div style={{ fontSize: '11px', color: '#7f8c8d', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Highway Dist</div>
-                            <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#34495e', marginTop: '4px' }}>
-                                {loadingStats ? '...' : `${totalRealtimeDistance.toFixed(1)} km`}
-                            </div>
-                        </div>
                     </div>
                 </div>
 
@@ -137,19 +131,26 @@ export default function AdminUserProfileModal({ viewingUser, setViewingUser }) {
                                 const stat = vehicleStats[v.vehicleId];
                                 return (
                                     <div key={v.vehicleId} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'white', padding: '10px 14px', borderRadius: '6px', border: '1px solid #ddd' }}>
-                                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                        <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
                                             <strong style={{ fontSize: '16px', letterSpacing: '1px' }}>{v.vehicleNumber}</strong>
                                             <span style={{ fontSize: '12px', color: '#7f8c8d', marginTop: '2px' }}>
-                                                ID: #{v.vehicleId} • <strong>{stat ? stat.totalDistance.toFixed(1) : '0.0'} km</strong> driven
+                                                ID: #{v.vehicleId}
                                             </span>
                                         </div>
-                                        <span style={{ 
-                                            backgroundColor: v.vehicleType === 'CAR' ? '#e8ecef' : '#fff3cd', 
-                                            color: v.vehicleType === 'CAR' ? '#495057' : '#856404', 
-                                            padding: '4px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold' 
-                                        }}>
-                                            {v.vehicleType}
-                                        </span>
+                                        <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+                                            <span style={{ 
+                                                backgroundColor: v.vehicleType === 'CAR' ? '#e8ecef' : '#fff3cd', 
+                                                color: v.vehicleType === 'CAR' ? '#495057' : '#856404', 
+                                                padding: '4px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold' 
+                                            }}>
+                                                {v.vehicleType}
+                                            </span>
+                                        </div>
+                                        <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+                                            <span style={{ fontSize: '14px', color: '#2c3e50', fontWeight: '600' }}>
+                                                {stat ? stat.totalDistance.toFixed(1) : '0.0'} <span style={{fontSize: '12px', color: '#7f8c8d', fontWeight: 'normal'}}>km</span>
+                                            </span>
+                                        </div>
                                     </div>
                                 );
                             })}

@@ -3,7 +3,6 @@ import { getRequest } from '../services/api';
 import { getSession } from '../services/auth';
 import DashboardSummaryCards from '../components/dashboard/DashboardSummaryCards';
 import DashboardMyVehicles from '../components/dashboard/DashboardMyVehicles';
-import DashboardQuickActions from '../components/dashboard/DashboardQuickActions';
 import './UserDashboardStyles.css';
 
 function UserDashboard() {
@@ -16,7 +15,8 @@ function UserDashboard() {
         totalVehicles: 0,
         walletBalance: 0,
         tollUsedThisMonth: 0,
-        lastHighwayUsed: 'No data available'
+        lastHighwayUsed: 'No data available',
+        totalHighwayDistance: 0
     });
     const [myVehicles, setMyVehicles] = useState([]);
     const [apiStatus, setApiStatus] = useState({
@@ -27,18 +27,37 @@ function UserDashboard() {
     });
 
     useEffect(() => {
-        fetchDashboardData();
-    }, []);
+        let isMounted = true;
+
+        const initialLoad = async () => {
+            setLoading(true);
+            await fetchDashboardData();
+            if (isMounted) setLoading(false);
+        };
+
+        initialLoad();
+
+        // Real-time polling every 5 seconds
+        const pollInterval = setInterval(() => {
+            if (isMounted) {
+                fetchDashboardData();
+            }
+        }, 5000);
+
+        return () => {
+            isMounted = false;
+            clearInterval(pollInterval);
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [userId]);
 
     const fetchDashboardData = async () => {
-        setLoading(true);
         await Promise.all([
             fetchUserProfile(),
             fetchVehicles(),
             fetchWallet(),
             fetchBills(),
         ]);
-        setLoading(false);
     };
 
     const fetchUserProfile = async () => {
@@ -63,9 +82,36 @@ function UserDashboard() {
             })));
             setUserData(prev => ({ ...prev, totalVehicles: userVehicles.length }));
             setApiStatus(prev => ({ ...prev, vehiclesLoaded: true }));
+
+            // Fetch highway usage summaries to find the last highway used and total distance
+            let foundHighway = null;
+            let totalDist = 0;
+            for (const v of userVehicles) {
+                try {
+                    const summary = await getRequest(`/highway-usage/summary/${v.vehicleId}`);
+                    if (summary) {
+                        totalDist += (summary.totalDistance || 0);
+                        if (summary.distanceByHighway) {
+                            const highways = Object.keys(summary.distanceByHighway);
+                            if (highways.length > 0) {
+                                foundHighway = highways[highways.length - 1]; // Get latest/any
+                            }
+                        }
+                    }
+                } catch (e) {
+                    // Ignore individual summary fetch errors
+                }
+            }
+            
+            if (foundHighway) {
+                setUserData(prev => ({ ...prev, lastHighwayUsed: foundHighway, totalHighwayDistance: totalDist }));
+            } else {
+                setUserData(prev => ({ ...prev, lastHighwayUsed: 'None yet', totalHighwayDistance: 0 }));
+            }
+
         } catch {
             setMyVehicles([]);
-            setUserData(prev => ({ ...prev, totalVehicles: 0 }));
+            setUserData(prev => ({ ...prev, totalVehicles: 0, lastHighwayUsed: 'N/A' }));
             setApiStatus(prev => ({ ...prev, vehiclesLoaded: true }));
         }
     };
@@ -126,9 +172,6 @@ function UserDashboard() {
 
                     {/* My Vehicles */}
                     <DashboardMyVehicles vehicles={myVehicles} />
-
-                    {/* Quick Actions */}
-                    <DashboardQuickActions />
                 </>
             )}
         </div>

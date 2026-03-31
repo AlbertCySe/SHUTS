@@ -1,0 +1,69 @@
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: #1e293b;
+  color: white;
+}
+
+.dashboard-container {
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-header {
+  background-color: #0f172a;
+  padding: 1rem 2rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dashboard-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #38bdf8;
+}
+
+.telemetry-panel {
+  display: flex;
+  gap: 20px;
+}
+
+.telemetry-box {
+  background-color: #1e293b;
+  border: 1px solid #334155;
+  padding: 10px 15px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.telemetry-label {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.telemetry-value {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #f8fafc;
+}
+
+.vehicle-icon {
+  background: none;
+  border: none;
+}
+
+.leaflet-container {
+  flex-grow: 1;
+  width: 100%;
+}

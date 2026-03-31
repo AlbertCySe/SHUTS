@@ -50,6 +50,11 @@ public class ProfileUpdateRequestService {
         return requestRepo.findAllByOrderByCreatedAtDesc();
     }
 
+    /** User: get profile update requests by user ID */
+    public List<ProfileUpdateRequest> getRequestsByUser(Long userId) {
+        return requestRepo.findByUserIdOrderByCreatedAtDesc(userId);
+    }
+
     /** Admin: get pending count for badge */
     public long getPendingCount() {
         return requestRepo.countByStatus(ProfileUpdateRequest.RequestStatus.PENDING);

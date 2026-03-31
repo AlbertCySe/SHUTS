@@ -24,10 +24,48 @@ import java.util.Map;
 public class IoTController {
 
     private final IoTIdentificationService iotIdentificationService;
+    private final com.highway.tolling.iot.simulator.service.IoTStreamingService iotStreamingService;
 
     @Autowired
-    public IoTController(IoTIdentificationService iotIdentificationService) {
+    public IoTController(IoTIdentificationService iotIdentificationService,
+            com.highway.tolling.iot.simulator.service.IoTStreamingService iotStreamingService) {
         this.iotIdentificationService = iotIdentificationService;
+        this.iotStreamingService = iotStreamingService;
+    }
+
+    /**
+     * Start IoT Simulation for a Vehicle
+     * POST /api/iot/simulate/{vehicleId}
+     * Param: routeName (optional)
+     */
+    @PostMapping("/simulate/{vehicleId}")
+    public ResponseEntity<Map<String, Object>> startSimulation(
+            @PathVariable Long vehicleId,
+            @RequestParam(defaultValue = "Sample-NH44") String routeName) {
+        
+        String result = iotStreamingService.startSimulation(vehicleId, routeName);
+        
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("message", result);
+        
+        return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
+    }
+
+    /**
+     * Check Simulation Status
+     * GET /api/iot/simulate/{vehicleId}/status
+     */
+    @GetMapping("/simulate/{vehicleId}/status")
+    public ResponseEntity<Map<String, Object>> getSimulationStatus(@PathVariable Long vehicleId) {
+        boolean isSimulating = iotStreamingService.isVehicleSimulating(vehicleId);
+        
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("isSimulating", isSimulating);
+        response.put("vehicleId", vehicleId);
+        
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     /**

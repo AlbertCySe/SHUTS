@@ -2,7 +2,6 @@ package com.highway.tolling.repository;
 
 import com.highway.tolling.model.AnomalyType;
 import com.highway.tolling.model.DataAnomaly;
-import com.highway.tolling.model.ReviewStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -18,20 +17,12 @@ import java.util.List;
 @Repository
 public interface DataAnomalyRepository extends JpaRepository<DataAnomaly, Long> {
 
-    /**
-     * Find all pending anomalies for review
-     */
-    List<DataAnomaly> findByReviewStatusOrderByDetectedAtDesc(ReviewStatus reviewStatus);
 
     /**
      * Find all anomalies for a specific vehicle
      */
     List<DataAnomaly> findByVehicleIdOrderByDetectedAtDesc(Long vehicleId);
 
-    /**
-     * Find pending anomalies for a specific vehicle
-     */
-    List<DataAnomaly> findByVehicleIdAndReviewStatus(Long vehicleId, ReviewStatus reviewStatus);
 
     /**
      * Find anomalies by type

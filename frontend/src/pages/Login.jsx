@@ -127,7 +127,7 @@ function Login({ setUserRole }) {
                             <p>New to the system?</p>
                             <button
                                 className="btn-link"
-                                onClick={() => navigate('/users')}
+                                onClick={() => navigate('/register')}
                                 type="button"
                             >
                                 Register your vehicle

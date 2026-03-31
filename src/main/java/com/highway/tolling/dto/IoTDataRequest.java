@@ -25,6 +25,9 @@ public class IoTDataRequest {
     @NotNull(message = "Timestamp is required")
     private String timestamp; // ISO-8601 format (e.g., "2026-02-04T13:18:00")
 
+    // Simulator explicitly defining whether point is on a highway
+    private Boolean isHighway;
+
     // Default Constructor
     public IoTDataRequest() {
     }
@@ -70,6 +73,14 @@ public class IoTDataRequest {
         this.timestamp = timestamp;
     }
 
+    public Boolean getIsHighway() {
+        return isHighway;
+    }
+
+    public void setIsHighway(Boolean isHighway) {
+        this.isHighway = isHighway;
+    }
+
     @Override
     public String toString() {
         return "IoTDataRequest{" +
@@ -77,6 +88,7 @@ public class IoTDataRequest {
                 ", latitude=" + latitude +
                 ", longitude=" + longitude +
                 ", timestamp='" + timestamp + '\'' +
+                ", isHighway=" + isHighway +
                 '}';
     }
 }

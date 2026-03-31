@@ -1,13 +1,9 @@
 package com.highway.tolling.controller;
 
-import com.highway.tolling.dto.VehicleAdminDTO;
-import com.highway.tolling.model.Vehicle;
 import com.highway.tolling.model.Wallet;
 import com.highway.tolling.service.AdminService;
+import com.highway.tolling.service.WalletService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,10 +21,12 @@ import java.util.Map;
 public class AdminController {
 
     private final AdminService adminService;
+    private final WalletService walletService;
 
     @Autowired
-    public AdminController(AdminService adminService) {
+    public AdminController(AdminService adminService, WalletService walletService) {
         this.adminService = adminService;
+        this.walletService = walletService;
     }
 
     /**
@@ -51,31 +49,7 @@ public class AdminController {
         return new ResponseEntity<>(wallets, HttpStatus.OK);
     }
 
-    /**
-     * Get all wallets in deficit (below minimum balance)
-     * GET /api/admin/wallets/deficit
-     */
-    @GetMapping("/wallets/deficit")
-    public ResponseEntity<List<Wallet>> getWalletsInDeficit() {
-        List<Wallet> wallets = adminService.getWalletsInDeficit();
-        return new ResponseEntity<>(wallets, HttpStatus.OK);
-    }
 
-    /**
-     * Get total toll collected
-     * GET /api/admin/toll/total
-     */
-    @GetMapping("/toll/total")
-    public ResponseEntity<Map<String, Object>> getTotalTollCollected() {
-        double totalToll = adminService.getTotalTollCollected();
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("totalTollCollected", totalToll);
-        response.put("currency", "INR");
-        response.put("formattedAmount", "₹" + String.format("%.2f", totalToll));
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
 
     /**
      * Get system statistics dashboard
@@ -87,35 +61,18 @@ public class AdminController {
         return new ResponseEntity<>(stats, HttpStatus.OK);
     }
 
-    /**
-     * Health check for admin endpoints
-     * GET /api/admin/health
-     */
-    @GetMapping("/health")
-    public ResponseEntity<String> healthCheck() {
-        return new ResponseEntity<>("Admin API is running!", HttpStatus.OK);
-    }
+
 
     /**
-     * Get paginated vehicles with user details for admin dashboard
-     * GET /api/admin/vehicles/paginated
-     * 
-     * Uses JPQL projection to fetch vehicle and user data in single query
-     * Optimized to avoid N+1 query problem
-     * 
-     * Example: GET /api/admin/vehicles/paginated?page=0&size=20
-     * 
-     * @param page Page number (0-indexed)
-     * @param size Page size
-     * @return ResponseEntity containing Page of VehicleAdminDTO
+     * Seed random wallet balances for all users with ₹0 or no wallet.
+     * POST /api/admin/seed-wallets
      */
-    @GetMapping("/vehicles/paginated")
-    public ResponseEntity<Page<VehicleAdminDTO>> getVehiclesPaginated(
-            @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "20") Integer size) {
-
-        Pageable pageable = PageRequest.of(page, size);
-        Page<VehicleAdminDTO> vehiclesPage = adminService.getVehiclesWithUserData(pageable);
-        return new ResponseEntity<>(vehiclesPage, HttpStatus.OK);
+    @PostMapping("/seed-wallets")
+    public ResponseEntity<Map<String, Object>> seedWallets() {
+        int count = walletService.seedWallets();
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Wallet seeding complete!");
+        response.put("walletsUpdated", count);
+        return ResponseEntity.ok(response);
     }
 }

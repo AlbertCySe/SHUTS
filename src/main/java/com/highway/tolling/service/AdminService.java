@@ -1,6 +1,5 @@
 package com.highway.tolling.service;
 
-import com.highway.tolling.dto.VehicleAdminDTO;
 import com.highway.tolling.model.Bill;
 import com.highway.tolling.model.Vehicle;
 import com.highway.tolling.model.Wallet;
@@ -8,8 +7,6 @@ import com.highway.tolling.repository.BillRepository;
 import com.highway.tolling.repository.VehicleRepository;
 import com.highway.tolling.repository.WalletRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -123,17 +120,6 @@ public class AdminService {
                 walletsInDeficit);
     }
 
-    /**
-     * Get paginated vehicles with user data for admin dashboard
-     * Uses JPQL projection to fetch data in single query
-     * Optimized to avoid N+1 query problem
-     * 
-     * @param pageable pagination information
-     * @return Page of VehicleAdminDTO
-     */
-    public Page<VehicleAdminDTO> getVehiclesWithUserData(Pageable pageable) {
-        return vehicleRepository.findAllVehiclesWithUserData(pageable);
-    }
 
     /**
      * Inner class to hold admin statistics

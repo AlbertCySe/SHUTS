@@ -35,6 +35,8 @@ pnpm-debug.log*
 # IoT Simulator Specific
 iot-simulator/offline-gps-data.json
 iot-simulator/target/
+iot-simulator/frontend/node_modules/
+iot-simulator/frontend/dist/
 iot-simulator/*.log
 
 # Logs & Temporary Files

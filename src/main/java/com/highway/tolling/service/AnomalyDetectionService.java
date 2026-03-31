@@ -210,12 +210,6 @@ public class AnomalyDetectionService {
         return anomalyRepository.save(anomaly);
     }
 
-    /**
-     * Get all pending anomalies for review
-     */
-    public List<DataAnomaly> getPendingAnomalies() {
-        return anomalyRepository.findByReviewStatusOrderByDetectedAtDesc(ReviewStatus.PENDING);
-    }
 
     /**
      * Get anomalies for a specific vehicle
@@ -224,17 +218,4 @@ public class AnomalyDetectionService {
         return anomalyRepository.findByVehicleIdOrderByDetectedAtDesc(vehicleId);
     }
 
-    /**
-     * Mark anomaly as reviewed
-     */
-    public DataAnomaly markAsReviewed(Long anomalyId, String notes, ReviewStatus newStatus) {
-        DataAnomaly anomaly = anomalyRepository.findById(anomalyId)
-                .orElseThrow(() -> new RuntimeException("Anomaly not found with ID: " + anomalyId));
-
-        anomaly.setReviewStatus(newStatus);
-        anomaly.setReviewNotes(notes);
-        anomaly.setReviewedAt(LocalDateTime.now());
-
-        return anomalyRepository.save(anomaly);
-    }
 }

@@ -1,0 +1,105 @@
+[ {
+  "waypointIndex" : 109,
+  "progress" : 0.0,
+  "vehicleId" : 1
+}, {
+  "waypointIndex" : 223,
+  "progress" : 0.6086711263762523,
+  "vehicleId" : 2
+}, {
+  "waypointIndex" : 41,
+  "progress" : 0.5013087284369926,
+  "vehicleId" : 3
+}, {
+  "waypointIndex" : 130,
+  "progress" : 0.9883884144961688,
+  "vehicleId" : 4
+}, {
+  "waypointIndex" : 69,
+  "progress" : 0.849081587867277,
+  "vehicleId" : 5
+}, {
+  "waypointIndex" : 85,
+  "progress" : 0.37762491240586127,
+  "vehicleId" : 6
+}, {
+  "waypointIndex" : 226,
+  "progress" : 0.8077218598164454,
+  "vehicleId" : 8
+}, {
+  "waypointIndex" : 28,
+  "progress" : 0.0,
+  "vehicleId" : 9
+}, {
+  "waypointIndex" : 142,
+  "progress" : 0.34033113699443174,
+  "vehicleId" : 10
+}, {
+  "waypointIndex" : 213,
+  "progress" : 0.20727385203024087,
+  "vehicleId" : 11
+}, {
+  "waypointIndex" : 25,
+  "progress" : 0.05408582908824572,
+  "vehicleId" : 13
+}, {
+  "waypointIndex" : 119,
+  "progress" : 0.2938589913898216,
+  "vehicleId" : 14
+}, {
+  "waypointIndex" : 115,
+  "progress" : 0.0,
+  "vehicleId" : 15
+}, {
+  "waypointIndex" : 198,
+  "progress" : 0.7593636959595156,
+  "vehicleId" : 16
+}, {
+  "waypointIndex" : 47,
+  "progress" : 0.05316278056213127,
+  "vehicleId" : 17
+}, {
+  "waypointIndex" : 93,
+  "progress" : 0.1428874943595041,
+  "vehicleId" : 18
+}, {
+  "waypointIndex" : 65,
+  "progress" : 0.1807349394229849,
+  "vehicleId" : 19
+}, {
+  "waypointIndex" : 26,
+  "progress" : 0.6920457857604428,
+  "vehicleId" : 20
+}, {
+  "waypointIndex" : 143,
+  "progress" : 0.2351012287134937,
+  "vehicleId" : 21
+}, {
+  "waypointIndex" : 115,
+  "progress" : 0.2794498833395805,
+  "vehicleId" : 23
+}, {
+  "waypointIndex" : 122,
+  "progress" : 0.11178993419342818,
+  "vehicleId" : 27
+}, {
+  "waypointIndex" : 175,
+  "progress" : 0.475385771475075,
+  "vehicleId" : 28
+}, {
+  "waypointIndex" : 133,
+  "progress" : 0.4598318765916892,
+  "vehicleId" : 29
+}, {
+  "waypointIndex" : 73,
+  "progress" : 0.0,
+  "vehicleId" : 30
+}, {
+  "waypointIndex" : 137,
+  "progress" : 0.3813070726485084,
+  "vehicleId" : 31
+}, {
+  "waypointIndex" : 39,
+  "progress" : 0.6694923311849861,
+  "vehicleId" : 32
+} ]

@@ -44,6 +44,12 @@ public class ProfileUpdateRequestController {
         return ResponseEntity.ok(service.getAllRequests());
     }
 
+    /** GET /api/profile-requests/user/{userId} — Get requests for a specific user */
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<?> getRequestsByUser(@PathVariable Long userId) {
+        return ResponseEntity.ok(service.getRequestsByUser(userId));
+    }
+
     /** GET /api/profile-requests/pending/count — Admin: badge count */
     @GetMapping("/pending/count")
     public ResponseEntity<?> getPendingCount() {

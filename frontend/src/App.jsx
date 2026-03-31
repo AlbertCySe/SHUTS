@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-ro
 import Header from './components/Header'
 import Home from './pages/Home'
 import Login from './pages/Login'
+import Register from './pages/Register'
 import Users from './pages/Users'
 const AdminReports = lazy(() => import('./pages/AdminReports'));
 const DbViewer = lazy(() => import('./pages/DbViewer'));
@@ -122,7 +123,8 @@ function App() {
                         <Routes>
                             <Route path="/" element={<Home />} />
                             <Route path="/login" element={<LoginWrapper setUserRole={setUserRole} />} />
-                            <Route path="/users" element={<Users />} />
+                            <Route path="/register" element={<Register />} />
+                            <Route path="/users" element={<ProtectedRoute userRole={userRole} allowedRoles={['user', 'admin']}><Users /></ProtectedRoute>} />
                             
                             {/* Protected Routes */}
                             <Route path="/user-dashboard" element={<ProtectedRoute userRole={userRole} allowedRoles={['user']}><UserDashboard /></ProtectedRoute>} />

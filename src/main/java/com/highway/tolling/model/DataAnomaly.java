@@ -32,15 +32,7 @@ public class DataAnomaly {
     @Column(nullable = false)
     private LocalDateTime detectedAt;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 15)
-    private ReviewStatus reviewStatus;
 
-    @Column(length = 1000)
-    private String reviewNotes;
-
-    @Column
-    private LocalDateTime reviewedAt;
 
     @Column
     private Long relatedLocationId; // Link to specific GPS point if applicable
@@ -48,7 +40,6 @@ public class DataAnomaly {
     // Constructors
     public DataAnomaly() {
         this.detectedAt = LocalDateTime.now();
-        this.reviewStatus = ReviewStatus.PENDING;
     }
 
     public DataAnomaly(Long vehicleId, AnomalyType anomalyType, String description, AnomalySeverity severity) {
@@ -57,7 +48,6 @@ public class DataAnomaly {
         this.description = description;
         this.severity = severity;
         this.detectedAt = LocalDateTime.now();
-        this.reviewStatus = ReviewStatus.PENDING;
     }
 
     public DataAnomaly(Long vehicleId, AnomalyType anomalyType, String description,
@@ -115,29 +105,6 @@ public class DataAnomaly {
         this.detectedAt = detectedAt;
     }
 
-    public ReviewStatus getReviewStatus() {
-        return reviewStatus;
-    }
-
-    public void setReviewStatus(ReviewStatus reviewStatus) {
-        this.reviewStatus = reviewStatus;
-    }
-
-    public String getReviewNotes() {
-        return reviewNotes;
-    }
-
-    public void setReviewNotes(String reviewNotes) {
-        this.reviewNotes = reviewNotes;
-    }
-
-    public LocalDateTime getReviewedAt() {
-        return reviewedAt;
-    }
-
-    public void setReviewedAt(LocalDateTime reviewedAt) {
-        this.reviewedAt = reviewedAt;
-    }
 
     public Long getRelatedLocationId() {
         return relatedLocationId;
@@ -156,8 +123,6 @@ public class DataAnomaly {
                 ", description='" + description + '\'' +
                 ", severity=" + severity +
                 ", detectedAt=" + detectedAt +
-                ", reviewStatus=" + reviewStatus +
-                ", reviewedAt=" + reviewedAt +
                 '}';
     }
 }

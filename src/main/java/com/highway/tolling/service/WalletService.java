@@ -2,11 +2,14 @@ package com.highway.tolling.service;
 
 import com.highway.tolling.model.User;
 import com.highway.tolling.model.Wallet;
+import com.highway.tolling.repository.UserRepository;
 import com.highway.tolling.repository.WalletRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 /**
  * Wallet Service
@@ -16,10 +19,13 @@ import java.util.Optional;
 public class WalletService {
 
     private final WalletRepository walletRepository;
+    private final UserRepository userRepository;
+    private final Random random = new Random();
 
     @Autowired
-    public WalletService(WalletRepository walletRepository) {
+    public WalletService(WalletRepository walletRepository, UserRepository userRepository) {
         this.walletRepository = walletRepository;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -142,6 +148,33 @@ public class WalletService {
             return wallet.getMinimumBalance() - wallet.getBalance();
         }
         return 0.0;
+    }
+
+    /**
+     * Seed random balances for all users:
+     * - Creates a wallet for users who don't have one.
+     * - Tops up existing wallets that have a ₹0.00 balance.
+     * Balance randomized between ₹1000 and ₹6000.
+     *
+     * @return Number of wallets created or topped up.
+     */
+    public int seedWallets() {
+        List<User> allUsers = userRepository.findAll();
+        int count = 0;
+        for (User user : allUsers) {
+            double randomBalance = Math.round((1000 + random.nextDouble() * 5000) * 100.0) / 100.0;
+            Optional<Wallet> existing = walletRepository.findByUser_UserId(user.getUserId());
+            if (existing.isEmpty()) {
+                Wallet w = new Wallet(user, randomBalance, 0.0);
+                walletRepository.save(w);
+                count++;
+            } else if (existing.get().getBalance() <= 0) {
+                existing.get().setBalance(randomBalance);
+                walletRepository.save(existing.get());
+                count++;
+            }
+        }
+        return count;
     }
 
     /**
