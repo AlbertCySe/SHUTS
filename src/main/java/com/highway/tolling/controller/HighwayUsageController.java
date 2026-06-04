@@ -1,12 +1,14 @@
 package com.highway.tolling.controller;
 
+import com.highway.tolling.model.HighwayUsage;
+import com.highway.tolling.repository.HighwayUsageRepository;
 import com.highway.tolling.service.HighwayUsageAggregationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
+import java.util.List;
 
 /**
  * Highway Usage Controller
@@ -17,10 +19,22 @@ import java.util.Map;
 public class HighwayUsageController {
 
     private final HighwayUsageAggregationService aggregationService;
+    private final HighwayUsageRepository highwayUsageRepository;
 
     @Autowired
-    public HighwayUsageController(HighwayUsageAggregationService aggregationService) {
+    public HighwayUsageController(HighwayUsageAggregationService aggregationService,
+            HighwayUsageRepository highwayUsageRepository) {
         this.aggregationService = aggregationService;
+        this.highwayUsageRepository = highwayUsageRepository;
+    }
+
+    /**
+     * Get all usage records (Diagnostic View)
+     * GET /api/highway-usage
+     */
+    @GetMapping
+    public ResponseEntity<List<HighwayUsage>> getAllUsage() {
+        return ResponseEntity.ok(highwayUsageRepository.findAll());
     }
 
 

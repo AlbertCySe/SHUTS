@@ -181,6 +181,72 @@
     color: #c0392b;
 }
 
+.admin-btn-track {
+    background-color: #eaf4ff;
+    color: #2471a3;
+    border: 1px solid #d6eaf8;
+}
+
+.admin-btn-track:hover {
+    background-color: #dbeeff;
+    border-color: #3498db;
+    color: #1f618d;
+}
+
+.tracking-field {
+    background: #f8f9fa;
+    border: 1px solid #eaeded;
+    border-radius: 8px;
+    padding: 12px;
+    min-width: 0;
+}
+
+.tracking-field span {
+    color: #7f8c8d;
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+}
+
+.tracking-field strong {
+    color: #2c3e50;
+    display: block;
+    font-size: 15px;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+}
+
+.tracking-map {
+    border: 1px solid #eaeded;
+    border-radius: 8px;
+    margin-top: 14px;
+    overflow: hidden;
+    background: #f8f9fa;
+}
+
+.tracking-map iframe {
+    border: 0;
+    display: block;
+    height: 220px;
+    width: 100%;
+}
+
+.tracking-map-link {
+    color: #2471a3;
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 10px 12px;
+    text-decoration: none;
+}
+
+.tracking-map-link:hover {
+    background: #eaf4ff;
+    color: #1f618d;
+}
+
 /* Header Buttons */
 .admin-btn-add {
     background: linear-gradient(135deg, #3498db, #2980b9);

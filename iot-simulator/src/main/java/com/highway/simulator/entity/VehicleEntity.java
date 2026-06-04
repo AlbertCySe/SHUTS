@@ -14,6 +14,15 @@ public class VehicleEntity {
     @Column(name = "core_vehicle_id", unique = true, nullable = false)
     private Long coreVehicleId;
 
+    @Column(name = "vehicle_number")
+    private String vehicleNumber;
+
+    @Column(name = "vehicle_type")
+    private String vehicleType;
+
+    @Column(name = "owner_name")
+    private String ownerName;
+
     @Column(name = "current_status")
     private String currentStatus; // RUNNING, STOPPED_FOR_BREAK, PARKED
 
@@ -26,6 +35,15 @@ public class VehicleEntity {
 
     public VehicleEntity(Long coreVehicleId, String currentStatus) {
         this.coreVehicleId = coreVehicleId;
+        this.currentStatus = currentStatus;
+        this.lastActiveTimestamp = LocalDateTime.now();
+    }
+
+    public VehicleEntity(Long coreVehicleId, String vehicleNumber, String vehicleType, String ownerName, String currentStatus) {
+        this.coreVehicleId = coreVehicleId;
+        this.vehicleNumber = vehicleNumber;
+        this.vehicleType = vehicleType;
+        this.ownerName = ownerName;
         this.currentStatus = currentStatus;
         this.lastActiveTimestamp = LocalDateTime.now();
     }
@@ -47,6 +65,30 @@ public class VehicleEntity {
         this.coreVehicleId = coreVehicleId;
     }
 
+    public String getVehicleNumber() {
+        return vehicleNumber;
+    }
+
+    public void setVehicleNumber(String vehicleNumber) {
+        this.vehicleNumber = vehicleNumber;
+    }
+
+    public String getVehicleType() {
+        return vehicleType;
+    }
+
+    public void setVehicleType(String vehicleType) {
+        this.vehicleType = vehicleType;
+    }
+
+    public String getOwnerName() {
+        return ownerName;
+    }
+
+    public void setOwnerName(String ownerName) {
+        this.ownerName = ownerName;
+    }
+
     public String getCurrentStatus() {
         return currentStatus;
     }
@@ -63,3 +105,4 @@ public class VehicleEntity {
         this.lastActiveTimestamp = lastActiveTimestamp;
     }
 }
+

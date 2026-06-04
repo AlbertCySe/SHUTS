@@ -37,7 +37,7 @@ public class IoTBroadcasterService {
         this.nhDetectionService = nhDetectionService;
     }
 
-    @Scheduled(fixedRate = 2000)
+    @Scheduled(fixedDelayString = "#{@simulatorSettingsService.settings.movement.backendBroadcastIntervalMs}")
     public void sendDataToBackends() {
         if (registry.isEmpty()) return;
 
@@ -58,6 +58,9 @@ public class IoTBroadcasterService {
             payload.put("latitude", vehicle.getCurrentLat());
             payload.put("longitude", vehicle.getCurrentLng());
             payload.put("timestamp", LocalDateTime.now().format(formatter));
+            payload.put("speedKmH", vehicle.getCurrentSpeedKmH());
+            payload.put("status", vehicle.getCurrentState());
+            payload.put("routeName", vehicle.getRouteName());
 
             String currentNH = nhDetectionService.detectNH(vehicle.getCurrentLat(), vehicle.getCurrentLng());
             payload.put("isHighway", !"LOCAL_ROAD".equals(currentNH));

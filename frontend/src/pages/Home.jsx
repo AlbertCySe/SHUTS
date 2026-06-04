@@ -22,7 +22,7 @@ function Home() {
                     <p>Register your vehicle and start using our digital toll system today</p>
                     <button
                         className="btn btn-primary btn-cta"
-                        onClick={() => navigate('/users')}
+                        onClick={() => navigate('/register')}
                     >
                         Register Now →
                     </button>

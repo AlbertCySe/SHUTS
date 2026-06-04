@@ -62,6 +62,9 @@ public class IoTIdentificationService {
                 normalizedLatitude,
                 normalizedLongitude,
                 timestamp);
+        locationTracking.setSpeedKmH(request.getSpeedKmH());
+        locationTracking.setStatus(request.getStatus());
+        locationTracking.setRouteName(request.getRouteName());
 
         if (!previousLocations.isEmpty()) {
             LocationTracking previousLocation = previousLocations.get(0);

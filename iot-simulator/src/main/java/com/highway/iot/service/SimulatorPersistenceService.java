@@ -36,7 +36,7 @@ public class SimulatorPersistenceService {
         this.routeFetchService = routeFetchService;
     }
 
-    @Scheduled(fixedRate = 5000)
+    @Scheduled(fixedDelayString = "#{@simulatorSettingsService.settings.movement.stateSaveIntervalMs}")
     public void saveState() {
         try {
             File dataDir = new File("./data");
@@ -71,7 +71,7 @@ public class SimulatorPersistenceService {
 
                 Optional<VehicleEntity> v = vehicleRepo.findByCoreVehicleId((long) id);
                 if (v.isPresent() && "RUNNING".equals(v.get().getCurrentStatus())) {
-                    VehicleSimulator sim = routeFetchService.fetchAndAssignRouteForVehicle(id, random.nextInt(6) + 1);
+                    VehicleSimulator sim = routeFetchService.fetchAndAssignRouteForVehicle(id, random.nextInt(routeFetchService.getSelectableRouteCount()) + 1);
                     if (sim != null) {
                         sim.restoreState(wpIdx, progress);
                         registry.add((long) id, sim);

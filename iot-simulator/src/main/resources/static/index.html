@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IoT Simulator — Vehicle Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<!-- Loading -->
+<div class="loading-overlay" id="loading">
+    <div class="spinner"></div>
+    <div style="color:#94a3b8; font-size:14px;">Loading vehicle data…</div>
+</div>
+
+<!-- Header -->
+<div class="header">
+    <div class="header-left">
+        <div class="header-logo">🛰️</div>
+        <div>
+            <div class="header-title">IoT Simulator Dashboard</div>
+            <div class="header-sub">Port 8082 · Vehicle Tracking System</div>
+        </div>
+    </div>
+    <div class="header-right">
+        <div class="iot-status">
+            <div class="iot-dot"></div>
+            <div class="iot-status-text">ONLINE · Broadcasting</div>
+        </div>
+        <button class="settings-btn" onclick="openSettings()">⚙️ Settings</button>
+        <div class="clock" id="clock">—</div>
+    </div>
+</div>
+
+<!-- Stats Bar -->
+<div class="stats-bar">
+    <div class="stat-card">
+        <div class="stat-label">Total Vehicles</div>
+        <div class="stat-value blue" id="stat-total">—</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Running</div>
+        <div class="stat-value green" id="stat-running">—</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Parked</div>
+        <div class="stat-value" style="color:#94a3b8" id="stat-parked">—</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Avg Speed</div>
+        <div class="stat-value orange" id="stat-avg-speed">— km/h</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">On Highway</div>
+        <div class="stat-value blue" id="stat-highway">—</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Last Sync</div>
+        <div class="stat-value" style="color:#64748b; font-size:14px" id="stat-sync">—</div>
+    </div>
+</div>
+
+<!-- Controls -->
+<div class="controls">
+    <input class="search-input" id="search" type="text" placeholder="🔍  Search by vehicle number or owner…" oninput="renderTable()" />
+    <select class="filter-select" id="filter-status" onchange="renderTable()">
+        <option value="all">All Statuses</option>
+        <option value="RUNNING">Running</option>
+        <option value="PARKED">Parked</option>
+        <option value="STOPPED_FOR_BREAK">On Break</option>
+    </select>
+    <button class="btn btn-primary" onclick="startAll()">⚡ Start All</button>
+    <button class="btn btn-danger" onclick="stopAll()">🛑 Stop All</button>
+    <span style="font-size:11px; color:#475569; margin-left:8px;">🔄 Auto-refresh 3s</span>
+</div>
+
+<!-- Table -->
+<div class="table-wrap">
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Vehicle No.</th>
+                <th>Type</th>
+                <th>Owner</th>
+                <th>IoT Status</th>
+                <th>Speed</th>
+                <th>Route</th>
+                <th>Coordinates</th>
+                <th>Highway</th>
+                <th>Last Update</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="vehicle-tbody">
+            <tr><td colspan="11" class="no-data">Loading…</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Track Modal -->
+<div class="modal-overlay" id="modal">
+    <div class="modal">
+        <div class="modal-header">
+            <div class="modal-title" id="modal-title">Vehicle Tracker</div>
+            <button class="modal-close" onclick="closeModal()">✕</button>
+        </div>
+        <div class="modal-grid" id="modal-body"></div>
+    </div>
+</div>
+
+<!-- Settings Drawer -->
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeSettings()"></div>
+<div class="drawer" id="settings-drawer">
+    <div class="drawer-header">
+        <div>
+            <div class="drawer-title">⚙️ Simulation Settings</div>
+            <div class="drawer-sub">Live runtime controls — changes take effect immediately</div>
+        </div>
+        <button class="drawer-close" onclick="closeSettings()">✕</button>
+    </div>
+    <div class="drawer-body">
+        <div id="drawer-msg"></div>
+        <div id="settings-form"><div style="color:#64748b; font-size:13px;">Loading settings…</div></div>
+    </div>
+    <div class="drawer-footer">
+        <button class="btn btn-primary btn-settings-save" onclick="saveSettings()">💾 Save Settings</button>
+        <button class="btn btn-settings-reset" onclick="resetSettings()">↩ Reset Defaults</button>
+    </div>
+</div>
+
+<!-- JavaScript Logic -->
+<script src="dashboard.js"></script>
+</body>
+</html>

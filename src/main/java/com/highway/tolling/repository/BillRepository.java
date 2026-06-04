@@ -42,10 +42,25 @@ public interface BillRepository extends JpaRepository<Bill, Long> {
     Optional<Bill> findByUserIdAndBillMonth(Long userId, String billMonth);
 
     /**
+     * Find bills for a specific vehicle by month
+     */
+    Optional<Bill> findByVehicleIdAndBillMonth(Long vehicleId, String billMonth);
+
+    /**
+     * Find all bills for a specific vehicle
+     */
+    List<Bill> findAllByVehicleId(Long vehicleId);
+
+    /**
      * Find all bills by status
      * 
      * @param status the bill status
      * @return list of bills
      */
     List<Bill> findByStatus(BillStatus status);
+
+    /**
+     * Find bills pending for 24h auto-deduction check.
+     */
+    List<Bill> findByStatusAndAutoDeductAttemptedFalseAndCreatedAtBefore(BillStatus status, java.time.LocalDateTime cutoffTime);
 }

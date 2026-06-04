@@ -23,6 +23,8 @@ const AdminVehicles = lazy(() => import('./pages/AdminVehicles'));
 const AdminHighways = lazy(() => import('./pages/AdminHighways'));
 const TollHistory = lazy(() => import('./pages/TollHistory'));
 const AdminProfileRequests = lazy(() => import('./pages/AdminProfileRequests'));
+const AdminBilling = lazy(() => import('./pages/AdminBilling'));
+const AdminWallets = lazy(() => import('./pages/AdminWallets'));
 
 
 function App() {
@@ -74,6 +76,8 @@ function App() {
                             <Link to="/admin/users" className="admin-nav-link">👥 Users</Link>
                             <Link to="/admin/vehicles" className="admin-nav-link">🚗 Vehicles</Link>
                             <Link to="/admin/highways" className="admin-nav-link">🛣️ Highways</Link>
+                            <Link to="/admin/billing" className="admin-nav-link">💰 Billing</Link>
+                            <Link to="/admin/wallets" className="admin-nav-link">💳 Wallets</Link>
                             <Link to="/admin/reports" className="admin-nav-link">📋 Reports</Link>
                             <Link to="/admin/profile-requests" className="admin-nav-link"
                                 onClick={fetchPendingCount}
@@ -136,6 +140,8 @@ function App() {
                             <Route path="/admin/users" element={<ProtectedRoute userRole={userRole} allowedRoles={['admin']}><AdminUsers /></ProtectedRoute>} />
                             <Route path="/admin/vehicles" element={<ProtectedRoute userRole={userRole} allowedRoles={['admin']}><AdminVehicles /></ProtectedRoute>} />
                             <Route path="/admin/highways" element={<ProtectedRoute userRole={userRole} allowedRoles={['admin']}><AdminHighways /></ProtectedRoute>} />
+                            <Route path="/admin/billing" element={<ProtectedRoute userRole={userRole} allowedRoles={['admin']}><AdminBilling /></ProtectedRoute>} />
+                            <Route path="/admin/wallets" element={<ProtectedRoute userRole={userRole} allowedRoles={['admin']}><AdminWallets /></ProtectedRoute>} />
                             <Route path="/admin/profile-requests" element={<ProtectedRoute userRole={userRole} allowedRoles={['admin']}><AdminProfileRequests onCountChange={setPendingRequestCount} /></ProtectedRoute>} />
                         </Routes>
                     </Suspense>

@@ -1,15 +1,23 @@
 package com.highway.tolling.service;
 
 import com.highway.tolling.model.Bill;
+import com.highway.tolling.model.Highway;
+import com.highway.tolling.model.HighwayUsage;
 import com.highway.tolling.model.Vehicle;
 import com.highway.tolling.model.Wallet;
 import com.highway.tolling.repository.BillRepository;
+import com.highway.tolling.repository.HighwayRepository;
+import com.highway.tolling.repository.HighwayUsageRepository;
 import com.highway.tolling.repository.VehicleRepository;
 import com.highway.tolling.repository.WalletRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 /**
@@ -22,14 +30,20 @@ public class AdminService {
     private final VehicleRepository vehicleRepository;
     private final WalletRepository walletRepository;
     private final BillRepository billRepository;
+    private final HighwayRepository highwayRepository;
+    private final HighwayUsageRepository highwayUsageRepository;
 
     @Autowired
     public AdminService(VehicleRepository vehicleRepository,
             WalletRepository walletRepository,
-            BillRepository billRepository) {
+            BillRepository billRepository,
+            HighwayRepository highwayRepository,
+            HighwayUsageRepository highwayUsageRepository) {
         this.vehicleRepository = vehicleRepository;
         this.walletRepository = walletRepository;
         this.billRepository = billRepository;
+        this.highwayRepository = highwayRepository;
+        this.highwayUsageRepository = highwayUsageRepository;
     }
 
     /**
@@ -120,6 +134,71 @@ public class AdminService {
                 walletsInDeficit);
     }
 
+
+    /**
+     * Populate sample highway usage data for all vehicles
+     * This is used for testing the monthly billing system
+     */
+    public int populateSampleUsage() {
+        List<Vehicle> vehicles = vehicleRepository.findAll();
+        List<Highway> highways = highwayRepository.findAll();
+        
+        if (vehicles.isEmpty() || highways.isEmpty()) {
+            return 0;
+        }
+
+        Random random = new Random();
+        List<HighwayUsage> sampleUsages = new ArrayList<>();
+        YearMonth previousMonth = YearMonth.now().minusMonths(1);
+        
+        for (Vehicle vehicle : vehicles) {
+            // Create 3-7 random usage sessions for each vehicle in the previous month
+            int sessionsCount = 3 + random.nextInt(5);
+            
+            for (int i = 0; i < sessionsCount; i++) {
+                Highway highway = highways.get(random.nextInt(highways.size()));
+                
+                // Random day in previous month
+                int day = 1 + random.nextInt(previousMonth.lengthOfMonth());
+                int hour = 8 + random.nextInt(12); // Between 8 AM and 8 PM
+                
+                LocalDateTime entryTime = previousMonth.atDay(day).atTime(hour, random.nextInt(60));
+                LocalDateTime exitTime = entryTime.plusMinutes(20 + random.nextInt(100));
+                
+                double distance = 5.0 + (random.nextDouble() * 45.0); // 5km to 50km
+                
+                HighwayUsage usage = new HighwayUsage(
+                    vehicle.getVehicleId(),
+                    highway.getHighwayId(),
+                    entryTime,
+                    highway.getStartLatitude(),
+                    highway.getStartLongitude()
+                );
+                usage.setExitTimestamp(exitTime);
+                usage.setExitLatitude(highway.getEndLatitude());
+                usage.setExitLongitude(highway.getEndLongitude());
+                usage.setDistanceTraveled(distance);
+                
+                sampleUsages.add(usage);
+            }
+        }
+        
+        highwayUsageRepository.saveAll(sampleUsages);
+        return sampleUsages.size();
+    }
+
+
+    /**
+     * Get recent bills generated in the system
+     * 
+     * @return List of latest 20 bills
+     */
+    public List<Bill> getRecentBills() {
+        return billRepository.findAll().stream()
+                .sorted((b1, b2) -> b2.getBillId().compareTo(b1.getBillId()))
+                .limit(20)
+                .collect(Collectors.toList());
+    }
 
     /**
      * Inner class to hold admin statistics

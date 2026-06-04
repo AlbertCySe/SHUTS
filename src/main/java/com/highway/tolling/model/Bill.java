@@ -19,6 +19,9 @@ public class Bill {
     @Column(nullable = false)
     private Long userId;
 
+    @Column
+    private Long vehicleId; // Optional: specified if bill is for a single vehicle
+
     @Column(nullable = false)
     private Double totalDistance;
 
@@ -38,12 +41,16 @@ public class Bill {
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
+    @Column(nullable = false)
+    private boolean autoDeductAttempted = false;
+
     // Constructors
     public Bill() {
         this.totalDistance = 0.0;
         this.totalAmount = 0.0;
         this.status = BillStatus.PENDING;
         this.createdAt = LocalDateTime.now();
+        this.autoDeductAttempted = false;
     }
 
     public Bill(Long userId, Double totalDistance, Double totalAmount,
@@ -55,6 +62,20 @@ public class Bill {
         this.dueDate = dueDate;
         this.status = BillStatus.PENDING;
         this.createdAt = LocalDateTime.now();
+        this.autoDeductAttempted = false;
+    }
+
+    public Bill(Long userId, Long vehicleId, Double totalDistance, Double totalAmount,
+            String billMonth, LocalDate dueDate) {
+        this.userId = userId;
+        this.vehicleId = vehicleId;
+        this.totalDistance = totalDistance;
+        this.totalAmount = totalAmount;
+        this.billMonth = billMonth;
+        this.dueDate = dueDate;
+        this.status = BillStatus.PENDING;
+        this.createdAt = LocalDateTime.now();
+        this.autoDeductAttempted = false;
     }
 
     // Getters and Setters
@@ -72,6 +93,14 @@ public class Bill {
 
     public void setUserId(Long userId) {
         this.userId = userId;
+    }
+
+    public Long getVehicleId() {
+        return vehicleId;
+    }
+
+    public void setVehicleId(Long vehicleId) {
+        this.vehicleId = vehicleId;
     }
 
     public Double getTotalDistance() {
@@ -120,6 +149,14 @@ public class Bill {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public boolean isAutoDeductAttempted() {
+        return autoDeductAttempted;
+    }
+
+    public void setAutoDeductAttempted(boolean autoDeductAttempted) {
+        this.autoDeductAttempted = autoDeductAttempted;
     }
 
     @Override

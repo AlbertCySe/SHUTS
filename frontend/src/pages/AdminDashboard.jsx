@@ -17,11 +17,36 @@ function AdminDashboard() {
     const [vehiclesLoading, setVehiclesLoading] = useState(true);
     const [vehiclesError, setVehiclesError] = useState(null);
 
+    // IoT Simulator Connection Status State
+    const [iotConnected, setIotConnected] = useState(null); // null = checking, true = connected, false = disconnected
+    const [activeIotCount, setActiveIotCount] = useState(0);
+
     // Fetch all data on component mount
     useEffect(() => {
         fetchStatistics();
         fetchNegativeBalanceWallets();
         fetchAllVehicles();
+    }, []);
+
+    // Check IoT Simulator connection on mount and every 5 seconds
+    useEffect(() => {
+        const checkIotConnection = async () => {
+            try {
+                const res = await fetch('http://localhost:8082/api/simulation/status');
+                if (res.ok) {
+                    const data = await res.json();
+                    setIotConnected(true);
+                    setActiveIotCount(data.activeCount || 0);
+                } else {
+                    setIotConnected(false);
+                }
+            } catch (err) {
+                setIotConnected(false);
+            }
+        };
+        checkIotConnection();
+        const interval = setInterval(checkIotConnection, 5000);
+        return () => clearInterval(interval);
     }, []);
 
     const fetchStatistics = async () => {
@@ -72,6 +97,66 @@ function AdminDashboard() {
             <p style={{ color: '#666', marginBottom: '20px' }}>
                 System monitoring and overview
             </p>
+
+            {/* 🛰️ IoT Simulator Connection Status Indicator */}
+            <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                background: iotConnected === null 
+                    ? 'rgba(102,126,234,0.05)' 
+                    : iotConnected 
+                        ? 'linear-gradient(135deg, rgba(39,174,96,0.08), rgba(46,204,113,0.08))' 
+                        : 'linear-gradient(135deg, rgba(231,76,60,0.08), rgba(192,57,43,0.08))',
+                border: `1px solid ${
+                    iotConnected === null 
+                        ? 'rgba(102,126,234,0.2)' 
+                        : iotConnected 
+                            ? 'rgba(46,204,113,0.3)' 
+                            : 'rgba(231,76,60,0.3)'
+                }`,
+                borderRadius: '12px',
+                padding: '16px 24px',
+                marginBottom: '25px',
+                boxShadow: iotConnected ? '0 4px 15px rgba(46,204,113,0.05)' : 'none',
+                transition: 'all 0.3s ease'
+            }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                    <div style={{ fontSize: '24px' }}>🛰️</div>
+                    <div>
+                        <h4 style={{ margin: 0, fontSize: '15px', color: '#2c3e50', fontWeight: '700' }}>
+                            External IoT Simulator
+                        </h4>
+                        <p style={{ margin: '3px 0 0 0', fontSize: '12px', color: '#7f8c8d' }}>
+                            Standalone device broadcaster running on Port 8082
+                        </p>
+                    </div>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <span style={{
+                        width: '10px', height: '10px', borderRadius: '50%',
+                        background: iotConnected === null ? '#bdc3c7' : iotConnected ? '#2ecc71' : '#e74c3c',
+                        boxShadow: iotConnected ? '0 0 8px #2ecc71' : 'none',
+                        animation: iotConnected ? 'pulse-glow 1.5s infinite' : 'none',
+                        display: 'inline-block'
+                    }} />
+                    <span style={{
+                        fontWeight: '800',
+                        fontSize: '13px',
+                        letterSpacing: '0.5px',
+                        color: iotConnected === null ? '#7f8c8d' : iotConnected ? '#27ae60' : '#e74c3c'
+                    }}>
+                        {iotConnected === null 
+                            ? 'CHECKING CONNECTION...' 
+                            : iotConnected 
+                                ? `CONNECTED (${activeIotCount} ACTIVE DEVICES)` 
+                                : 'DISCONNECTED (OFFLINE)'
+                        }
+                    </span>
+                </div>
+            </div>
+
 
             {/* Statistics Cards */}
             <div className="stats-grid">

@@ -1,48 +1,68 @@
-# Environment Variables & Secrets
+# ═══════════════════════════════════════════════════════
+#  Highway Tolling System — .gitignore
+# ═══════════════════════════════════════════════════════
+
+# ── Secrets & Environment Variables ─────────────────────
 .env
 .env.*
 *.env
+!.env.example
 application-secrets.properties
 secrets.properties
 credentials.json
 
-# Maven / Java Build Output
+# ── Maven / Java Build Output ────────────────────────────
 target/
+iot-simulator/target/
 *.jar
 *.war
 *.nar
 *.ear
+*.class
+
+# ── Compressed Archives ──────────────────────────────────
 *.zip
 *.tar.gz
 *.rar
-*.class
 
-# Maven Wrapper
-.mvn/
-!/.mvn/wrapper/maven-wrapper.properties
+# ── Maven Wrapper Cache ──────────────────────────────────
+.mvn/wrapper/maven-wrapper.jar
 
-# Frontend / Node 
+# ── Frontend — Main Project ──────────────────────────────
 frontend/node_modules/
 frontend/dist/
 frontend/build/
 frontend/.vite/
 frontend/*.local
+
+# ── Frontend — IoT Simulator ─────────────────────────────
+iot-simulator/frontend/node_modules/
+iot-simulator/frontend/dist/
+
+# ── IoT Simulator Runtime Data ───────────────────────────
+# Database files and backups are explicitly allowed to be tracked
+!*.sql
+!*.db
+!iot-simulator/data/*.db
+
+# Vehicle state snapshot (auto-regenerated on each run)
+iot-simulator/data/vehicle-state.json
+# Old offline GPS data file (no longer used)
+iot-simulator/offline-gps-data.json
+iot-simulator/Report.txt
+
+# ── Node.js Debug Logs ───────────────────────────────────
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# IoT Simulator Specific
-iot-simulator/offline-gps-data.json
-iot-simulator/target/
-iot-simulator/frontend/node_modules/
-iot-simulator/frontend/dist/
-iot-simulator/*.log
-
-# Logs & Temporary Files
+# ── Application Logs ─────────────────────────────────────
 *.log
-logs/
 *.log.*
+logs/
+
+# ── Temporary / Swap Files ───────────────────────────────
 *.tmp
 *.temp
 *.swp
@@ -52,7 +72,7 @@ logs/
 *.backup
 *.old
 
-# OS Generated Files
+# ── OS Generated Files ───────────────────────────────────
 .DS_Store
 Thumbs.db
 desktop.ini
@@ -61,14 +81,14 @@ ehthumbs.db
 .AppleDouble
 .LSOverride
 
-# IDE - IntelliJ IDEA
+# ── IDE — IntelliJ IDEA ──────────────────────────────────
 .idea/
 *.iml
 *.ipr
 *.iws
 out/
 
-# IDE - Eclipse / VS Code / NetBeans
+# ── IDE — Eclipse / VS Code / NetBeans ──────────────────
 .project
 .classpath
 .settings/
@@ -81,12 +101,12 @@ nbbuild/
 nbdist/
 .nb-gradle/
 
-# Build caching
+# ── Build Caching / Coverage ─────────────────────────────
 .gradle/
 build/
 coverage/
 *.coverage
 
-# AI/Agent Artifacts
+# ── AI / Agent Artifacts ─────────────────────────────────
 .gemini/
 brain/

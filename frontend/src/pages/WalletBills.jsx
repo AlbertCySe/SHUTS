@@ -47,21 +47,22 @@ function WalletBills() {
         setBillsLoading(false);
     };
 
-    const handleAddMoney = async (amount) => {
+    const handleRechargeRequest = async (amount) => {
         const val = parseFloat(amount || addAmount);
         if (!val || val <= 0) { setAddMessage({ type: 'error', text: 'Enter a valid amount.' }); return; }
         setAddLoading(true);
         try {
-            let updated;
-            try { updated = await postRequest(`/wallets/user/${userId}/topup`, { amount: val }); }
-            catch { updated = { ...wallet, balance: (wallet?.balance || 0) + val, notInitialized: false }; }
-            setWallet(updated);
-            setAddMessage({ type: 'success', text: `✅ ₹${val.toFixed(2)} added to your wallet!` });
+            const res = await postRequest(`/wallets/user/${userId}/recharge-request`, { amount: val });
+            if (res.success) {
+                setAddMessage({ type: 'success', text: `✅ Recharge request sent! Admin will verify UPI: ${res.upiReference}` });
+            } else {
+                setAddMessage({ type: 'error', text: res.message || 'Failed to submit request.' });
+            }
             setAddAmount('');
-        } catch { setAddMessage({ type: 'error', text: 'Failed to add money. Please try again.' }); }
+        } catch { setAddMessage({ type: 'error', text: 'Failed to request recharge. Please try again.' }); }
         finally {
             setAddLoading(false);
-            setTimeout(() => setAddMessage(null), 4000);
+            setTimeout(() => setAddMessage(null), 6000);
         }
     };
 
@@ -113,7 +114,7 @@ function WalletBills() {
                 wallet={wallet} loading={walletLoading}
                 addAmount={addAmount} setAddAmount={setAddAmount}
                 addLoading={addLoading} addMessage={addMessage}
-                onAddMoney={handleAddMoney}
+                onRechargeRequested={handleRechargeRequest}
             />
 
             <BillGenerator
@@ -130,6 +131,21 @@ function WalletBills() {
                 bills={bills} vehicles={vehicles}
                 loading={billsLoading}
                 onExportCSV={exportCSV}
+                onPayBill={async (billId) => {
+                    const confirm = window.confirm('Pay this bill using your wallet balance?');
+                    if (!confirm) return;
+                    try {
+                        const res = await postRequest(`/bills/${billId}/pay`, {});
+                        if (res.success) {
+                            alert('Bill paid successfully!');
+                            fetchAll();
+                        } else {
+                            alert(res.message || 'Failed to pay bill.');
+                        }
+                    } catch (e) {
+                        alert(e.response?.data?.message || 'Error occurred while paying bill.');
+                    }
+                }}
             />
         </div>
     );

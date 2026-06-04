@@ -17,62 +17,25 @@ import java.util.Map;
 
 /**
  * IoT Controller
- * Secure entry point for IoT GPS data submission.
+ * Secure entry point for receiving IoT GPS data from the standalone IoT Simulator.
+ * The main backend does NOT run simulations — all simulation logic lives in the
+ * external iot-simulator project (port 8082), which POSTs data here.
  */
 @RestController
 @RequestMapping("/api/iot")
 public class IoTController {
 
     private final IoTIdentificationService iotIdentificationService;
-    private final com.highway.tolling.iot.simulator.service.IoTStreamingService iotStreamingService;
 
     @Autowired
-    public IoTController(IoTIdentificationService iotIdentificationService,
-            com.highway.tolling.iot.simulator.service.IoTStreamingService iotStreamingService) {
+    public IoTController(IoTIdentificationService iotIdentificationService) {
         this.iotIdentificationService = iotIdentificationService;
-        this.iotStreamingService = iotStreamingService;
     }
 
     /**
-     * Start IoT Simulation for a Vehicle
-     * POST /api/iot/simulate/{vehicleId}
-     * Param: routeName (optional)
-     */
-    @PostMapping("/simulate/{vehicleId}")
-    public ResponseEntity<Map<String, Object>> startSimulation(
-            @PathVariable Long vehicleId,
-            @RequestParam(defaultValue = "Sample-NH44") String routeName) {
-        
-        String result = iotStreamingService.startSimulation(vehicleId, routeName);
-        
-        Map<String, Object> response = new HashMap<>();
-        response.put("success", true);
-        response.put("message", result);
-        
-        return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
-    }
-
-    /**
-     * Check Simulation Status
-     * GET /api/iot/simulate/{vehicleId}/status
-     */
-    @GetMapping("/simulate/{vehicleId}/status")
-    public ResponseEntity<Map<String, Object>> getSimulationStatus(@PathVariable Long vehicleId) {
-        boolean isSimulating = iotStreamingService.isVehicleSimulating(vehicleId);
-        
-        Map<String, Object> response = new HashMap<>();
-        response.put("success", true);
-        response.put("isSimulating", isSimulating);
-        response.put("vehicleId", vehicleId);
-        
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    /**
-     * Receive IoT GPS Data
+     * Receive IoT GPS Data from the standalone IoT Simulator
      * POST /api/iot/data
-     * Body: { "vehicleId": 1, "latitude": 12.34, "longitude": 56.78, "timestamp":
-     * "2026-02-04T13:18:00" }
+     * Body: { "vehicleId": 1, "latitude": 12.34, "longitude": 56.78, "timestamp": "2026-02-04T13:18:00" }
      */
     @PostMapping("/data")
     public ResponseEntity<IoTDataResponse> receiveIoTData(@Valid @RequestBody IoTDataRequest request) {
@@ -84,11 +47,9 @@ public class IoTController {
                     savedLocation.getId());
             return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (RuntimeException e) {
-            // Return 400 Bad Request with the validation error message
             IoTDataResponse response = new IoTDataResponse(false, e.getMessage());
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            // Return 500 Internal Server Error for unexpected issues
             IoTDataResponse response = new IoTDataResponse(false, "Internal Server Error: " + e.getMessage());
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -96,7 +57,6 @@ public class IoTController {
 
     /**
      * Handle validation errors from @Valid annotation
-     * Returns detailed field-level validation errors
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidationExceptions(MethodArgumentNotValidException ex) {

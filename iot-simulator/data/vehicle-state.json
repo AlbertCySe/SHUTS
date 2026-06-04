@@ -1,105 +1,121 @@
 [ {
-  "waypointIndex" : 109,
-  "progress" : 0.0,
-  "vehicleId" : 1
-}, {
-  "waypointIndex" : 223,
-  "progress" : 0.6086711263762523,
-  "vehicleId" : 2
-}, {
-  "waypointIndex" : 41,
-  "progress" : 0.5013087284369926,
+  "waypointIndex" : 201,
+  "progress" : 0.7156683881731627,
   "vehicleId" : 3
 }, {
-  "waypointIndex" : 130,
-  "progress" : 0.9883884144961688,
+  "waypointIndex" : 26,
+  "progress" : 0.34316922477313994,
   "vehicleId" : 4
 }, {
-  "waypointIndex" : 69,
-  "progress" : 0.849081587867277,
+  "waypointIndex" : 202,
+  "progress" : 0.22125401345690154,
   "vehicleId" : 5
 }, {
-  "waypointIndex" : 85,
-  "progress" : 0.37762491240586127,
+  "waypointIndex" : 160,
+  "progress" : 0.6038025871272288,
   "vehicleId" : 6
 }, {
-  "waypointIndex" : 226,
-  "progress" : 0.8077218598164454,
+  "waypointIndex" : 144,
+  "progress" : 0.9843234284023523,
+  "vehicleId" : 7
+}, {
+  "waypointIndex" : 148,
+  "progress" : 0.6940845634000717,
   "vehicleId" : 8
 }, {
-  "waypointIndex" : 28,
-  "progress" : 0.0,
+  "waypointIndex" : 23,
+  "progress" : 0.4394915793897876,
   "vehicleId" : 9
 }, {
-  "waypointIndex" : 142,
-  "progress" : 0.34033113699443174,
+  "waypointIndex" : 152,
+  "progress" : 0.6282970645393665,
   "vehicleId" : 10
 }, {
-  "waypointIndex" : 213,
-  "progress" : 0.20727385203024087,
+  "waypointIndex" : 0,
+  "progress" : 0.2924155399574695,
   "vehicleId" : 11
 }, {
-  "waypointIndex" : 25,
-  "progress" : 0.05408582908824572,
+  "waypointIndex" : 106,
+  "progress" : 0.24260835975988065,
+  "vehicleId" : 12
+}, {
+  "waypointIndex" : 8,
+  "progress" : 0.1365859576155766,
   "vehicleId" : 13
 }, {
-  "waypointIndex" : 119,
-  "progress" : 0.2938589913898216,
+  "waypointIndex" : 142,
+  "progress" : 0.37105041278493456,
   "vehicleId" : 14
 }, {
-  "waypointIndex" : 115,
+  "waypointIndex" : 12,
   "progress" : 0.0,
   "vehicleId" : 15
 }, {
-  "waypointIndex" : 198,
-  "progress" : 0.7593636959595156,
+  "waypointIndex" : 17,
+  "progress" : 0.0,
   "vehicleId" : 16
 }, {
-  "waypointIndex" : 47,
-  "progress" : 0.05316278056213127,
+  "waypointIndex" : 144,
+  "progress" : 0.6732022939085783,
   "vehicleId" : 17
 }, {
-  "waypointIndex" : 93,
-  "progress" : 0.1428874943595041,
+  "waypointIndex" : 159,
+  "progress" : 0.2948487155144113,
   "vehicleId" : 18
 }, {
-  "waypointIndex" : 65,
-  "progress" : 0.1807349394229849,
+  "waypointIndex" : 139,
+  "progress" : 0.8019767596904501,
   "vehicleId" : 19
 }, {
-  "waypointIndex" : 26,
-  "progress" : 0.6920457857604428,
+  "waypointIndex" : 211,
+  "progress" : 0.8078808596817896,
   "vehicleId" : 20
 }, {
-  "waypointIndex" : 143,
-  "progress" : 0.2351012287134937,
+  "waypointIndex" : 2,
+  "progress" : 0.28927063087530075,
   "vehicleId" : 21
 }, {
-  "waypointIndex" : 115,
-  "progress" : 0.2794498833395805,
+  "waypointIndex" : 116,
+  "progress" : 0.480684096752689,
+  "vehicleId" : 22
+}, {
+  "waypointIndex" : 122,
+  "progress" : 0.6048149690446374,
   "vehicleId" : 23
 }, {
   "waypointIndex" : 122,
-  "progress" : 0.11178993419342818,
+  "progress" : 0.6807453106421741,
+  "vehicleId" : 24
+}, {
+  "waypointIndex" : 130,
+  "progress" : 0.3941003223676285,
+  "vehicleId" : 25
+}, {
+  "waypointIndex" : 164,
+  "progress" : 0.07139495408795082,
+  "vehicleId" : 26
+}, {
+  "waypointIndex" : 17,
+  "progress" : 0.0,
   "vehicleId" : 27
 }, {
-  "waypointIndex" : 175,
-  "progress" : 0.475385771475075,
+  "waypointIndex" : 158,
+  "progress" : 0.7866281565080827,
   "vehicleId" : 28
 }, {
-  "waypointIndex" : 133,
-  "progress" : 0.4598318765916892,
+  "waypointIndex" : 91,
+  "progress" : 0.18235867450713986,
   "vehicleId" : 29
 }, {
-  "waypointIndex" : 73,
-  "progress" : 0.0,
+  "waypointIndex" : 184,
+  "progress" : 0.249007267475123,
   "vehicleId" : 30
 }, {
-  "waypointIndex" : 137,
-  "progress" : 0.3813070726485084,
+  "waypointIndex" : 21,
+  "progress" : 0.0,
   "vehicleId" : 31
 }, {
-  "waypointIndex" : 39,
-  "progress" : 0.6694923311849861,
+  "waypointIndex" : 0,
+  "progress" : 0.0,
   "vehicleId" : 32
 } ]

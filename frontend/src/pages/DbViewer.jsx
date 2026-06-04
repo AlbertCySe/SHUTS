@@ -1,47 +1,45 @@
 import { useState, useEffect } from 'react';
-import { getRequest } from '../services/api';
+import { getRequest, postRequest } from '../services/api';
 import './DbViewerStyles.css';
 
-const DB_TABLES = [
-    {
-        key: 'users',
-        label: '👤 Users',
-        endpoint: '/users',
-    },
-    {
-        key: 'vehicles',
-        label: '🚗 Vehicles',
-        endpoint: '/vehicles',
-    },
-    {
-        key: 'highways',
-        label: '🛣️ Highways',
-        endpoint: '/highways',
-    },
-    {
-        key: 'locations',
-        label: '📍 Locations',
-        endpoint: '/locations',
-    },
-];
-
 function DbViewer({ open, onClose }) {
-    const [activeTab, setActiveTab] = useState('users');
+    const [dbTables, setDbTables] = useState([]);
+    const [activeTab, setActiveTab] = useState('');
     const [tableData, setTableData] = useState({});
     const [loadingTab, setLoadingTab] = useState({});
     const [errorTab, setErrorTab] = useState({});
     const [minimized, setMinimized] = useState(false);
     const [fullscreen, setFullscreen] = useState(false);
 
+    // Fetch dynamic tables when panel opens
+    useEffect(() => {
+        if (!open) return;
+        if (dbTables.length > 0) return; // already fetched
+        
+        const fetchTables = async () => {
+            try {
+                const tables = await getRequest('/db-explorer/tables');
+                setDbTables(tables);
+                if (tables.length > 0 && !activeTab) {
+                    setActiveTab(tables[0].key);
+                }
+            } catch (err) {
+                console.error("Failed to fetch tables", err);
+            }
+        };
+        fetchTables();
+    }, [open]);
+
     // Auto-load table when tab changes
     useEffect(() => {
         if (!open) return;
+        if (!activeTab) return;
         if (tableData[activeTab]) return;
         fetchTable(activeTab);
-    }, [activeTab, open]);
+    }, [activeTab, open, dbTables]);
 
     const fetchTable = async (key) => {
-        const table = DB_TABLES.find(t => t.key === key);
+        const table = dbTables.find(t => t.key === key);
         if (!table) return;
         setLoadingTab(prev => ({ ...prev, [key]: true }));
         setErrorTab(prev => ({ ...prev, [key]: null }));
@@ -58,6 +56,30 @@ function DbViewer({ open, onClose }) {
     const handleRefresh = () => {
         setTableData(prev => ({ ...prev, [activeTab]: undefined }));
         fetchTable(activeTab);
+    };
+
+    const handleSeedData = async () => {
+        if (!window.confirm("This will generate sample highway usage for ALL vehicles for the last month and trigger bill generation. Proceed?")) return;
+        
+        setLoadingTab(prev => ({ ...prev, [activeTab]: true }));
+        try {
+            // 1. Populate usage
+            const usageRes = await postRequest('/admin/populate-usage');
+            alert(usageRes.message || "Usage data populated!");
+            
+            // 2. Generate bills
+            const billRes = await postRequest('/admin/generate-bills');
+            alert(billRes.message || "Bills generated!");
+            
+            // Refresh current view if it's bills or usage
+            if (activeTab === 'bills' || activeTab === 'highway_usage') {
+                handleRefresh();
+            }
+        } catch (err) {
+            alert("Failed to seed data: " + (err.message || "Check console"));
+        } finally {
+            setLoadingTab(prev => ({ ...prev, [activeTab]: false }));
+        }
     };
 
     if (!open) return null;
@@ -84,6 +106,12 @@ function DbViewer({ open, onClose }) {
                     >🔄</button>
                     <button
                         className="dbv-action-btn"
+                        onClick={handleSeedData}
+                        title="Populate Sample Monthly Data"
+                        style={{ background: 'rgba(78, 205, 196, 0.2)', color: '#4ecdc4' }}
+                    >⚡ Seed</button>
+                    <button
+                        className="dbv-action-btn"
                         onClick={() => setFullscreen(f => !f)}
                         title={fullscreen ? 'Exit fullscreen' : 'Fullscreen'}
                     >{fullscreen ? '⊡' : '⛶'}</button>
@@ -105,7 +133,7 @@ function DbViewer({ open, onClose }) {
                 <div className="dbv-panel-body">
                     {/* Tabs */}
                     <div className="dbv-tabs">
-                        {DB_TABLES.map(t => (
+                        {dbTables.map(t => (
                             <button
                                 key={t.key}
                                 className={`dbv-tab${activeTab === t.key ? ' active' : ''}`}

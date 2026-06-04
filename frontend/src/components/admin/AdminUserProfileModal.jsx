@@ -119,14 +119,14 @@ export default function AdminUserProfileModal({ viewingUser, setViewingUser }) {
                     </div>
                 </div>
 
-                <div style={{ backgroundColor: '#f8f9fa', borderRadius: '8px', padding: '16px', border: '1px solid #e9ecef', opacity: loadingStats ? 0.5 : 1 }}>
+                <div style={{ backgroundColor: '#f8f9fa', borderRadius: '8px', padding: '16px', border: '1px solid #e9ecef', opacity: loadingStats ? 0.5 : 1, marginBottom: '20px' }}>
                     <h4 style={{ margin: '0 0 12px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
                         🚗 Registered Vehicles & Individual Usage
                         <span className="admin-id-pill" style={{ marginLeft: 'auto' }}>{viewingUser.vehicles ? viewingUser.vehicles.length : 0}</span>
                     </h4>
                     
                     {viewingUser.vehicles && viewingUser.vehicles.length > 0 ? (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '200px', overflowY: 'auto' }}>
                             {viewingUser.vehicles.map(v => {
                                 const stat = vehicleStats[v.vehicleId];
                                 return (
@@ -160,9 +160,48 @@ export default function AdminUserProfileModal({ viewingUser, setViewingUser }) {
                     )}
                 </div>
 
-                <button className="btn btn-primary" style={{ width: '100%', marginTop: '24px', padding: '12px' }} onClick={() => setViewingUser(null)}>
-                    Close Profile Overview
-                </button>
+                {/* Manual Top Up Section for Admin */}
+                <div style={{ backgroundColor: '#fff', borderRadius: '8px', padding: '16px', border: '1px solid #9b59b6', boxShadow: '0 2px 8px rgba(155, 89, 182, 0.1)' }}>
+                    <h4 style={{ margin: '0 0 12px 0', color: '#8e44ad', fontSize: '15px' }}>⚡ Quick Wallet Top-Up</h4>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                        <input 
+                            type="number" 
+                            placeholder="Amount (₹)" 
+                            id="admin-topup-amt"
+                            style={{ flex: 1, padding: '8px 12px', borderRadius: '6px', border: '1px solid #ddd' }}
+                        />
+                        <button 
+                            className="btn btn-primary" 
+                            style={{ backgroundColor: '#8e44ad', borderColor: '#8e44ad' }}
+                            onClick={async () => {
+                                const amt = document.getElementById('admin-topup-amt').value;
+                                if (!amt || amt <= 0) return alert('Enter a valid amount');
+                                try {
+                                    const { postRequest } = await import('../../services/api');
+                                    const res = await postRequest(`/admin/wallets/user/${viewingUser.userId}/topup`, { amount: parseFloat(amt) });
+                                    if (res.success) {
+                                        alert(res.message);
+                                        document.getElementById('admin-topup-amt').value = '';
+                                        // Refresh wallet balance
+                                        const { getRequest } = await import('../../services/api');
+                                        const updatedWallet = await getRequest(`/wallets/user/${viewingUser.userId}`);
+                                        setWallet(updatedWallet);
+                                    }
+                                } catch (e) {
+                                    alert('Failed to top up wallet');
+                                }
+                            }}
+                        >
+                            Add Funds
+                        </button>
+                    </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: '10px', marginTop: '24px' }}>
+                    <button className="btn btn-secondary" style={{ flex: 1, padding: '12px' }} onClick={() => setViewingUser(null)}>
+                        Close
+                    </button>
+                </div>
             </div>
         </div>
     );

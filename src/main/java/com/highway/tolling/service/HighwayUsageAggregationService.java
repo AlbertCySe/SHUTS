@@ -2,82 +2,112 @@ package com.highway.tolling.service;
 
 import com.highway.tolling.model.Highway;
 import com.highway.tolling.model.HighwayUsage;
+import com.highway.tolling.model.Vehicle;
+import com.highway.tolling.model.VehicleType;
+import com.highway.tolling.repository.VehicleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.YearMonth;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
  * Highway Usage Aggregation Service
- * Provides simple methods to aggregate highway usage data for billing
+ * Provides methods to aggregate highway usage data for statistics and billing
  */
 @Service
 public class HighwayUsageAggregationService {
 
     private final HighwayUsageService highwayUsageService;
     private final HighwayService highwayService;
+    private final VehicleRepository vehicleRepository;
 
     @Autowired
     public HighwayUsageAggregationService(HighwayUsageService highwayUsageService,
-            HighwayService highwayService) {
+            HighwayService highwayService,
+            VehicleRepository vehicleRepository) {
         this.highwayUsageService = highwayUsageService;
         this.highwayService = highwayService;
+        this.vehicleRepository = vehicleRepository;
     }
 
     /**
-     * Get total highway distance for a vehicle (all highways combined)
-     * Simple one-line call for billing
-     */
-    public Double getTotalHighwayDistance(Long vehicleId) {
-        return highwayUsageService.getTotalDistanceByVehicle(vehicleId);
-    }
-
-    /**
-     * Get detailed breakdown by highway
-     * Returns map of highway name -> distance traveled
-     */
-    public Map<String, Double> getDistanceByHighway(Long vehicleId) {
-        List<HighwayUsage> usageRecords = highwayUsageService.getVehicleHighwayUsage(vehicleId);
-        Map<String, Double> breakdown = new HashMap<>();
-
-        for (HighwayUsage usage : usageRecords) {
-            Highway highway = highwayService.getHighwayById(usage.getHighwayId())
-                    .orElse(null);
-
-            if (highway != null) {
-                String highwayName = highway.getHighwayName();
-                breakdown.put(highwayName,
-                        breakdown.getOrDefault(highwayName, 0.0) + usage.getDistanceTraveled());
-            }
-        }
-
-        return breakdown;
-    }
-
-    /**
-     * Get aggregation summary for a vehicle
-     * All information needed for billing in one call
+     * Get complete usage summary for a vehicle.
+     * Used by HighwayUsageController.
      */
     public VehicleUsageSummary getVehicleUsageSummary(Long vehicleId) {
-        Double totalDistance = getTotalHighwayDistance(vehicleId);
-        Map<String, Double> breakdown = getDistanceByHighway(vehicleId);
-        int totalSessions = highwayUsageService.getVehicleHighwayUsage(vehicleId).size();
+        List<HighwayUsage> usageList = highwayUsageService.getVehicleHighwayUsage(vehicleId);
+        double totalDistance = 0.0;
+        Map<String, Double> distanceByHighway = new HashMap<>();
 
-        return new VehicleUsageSummary(vehicleId, totalDistance, breakdown, totalSessions);
+        for (HighwayUsage usage : usageList) {
+            totalDistance += usage.getDistanceTraveled();
+            final Double dist = usage.getDistanceTraveled();
+            highwayService.getHighwayById(usage.getHighwayId()).ifPresent(h -> {
+                distanceByHighway.merge(h.getHighwayName(), dist, Double::sum);
+            });
+        }
+
+        return new VehicleUsageSummary(vehicleId, totalDistance, distanceByHighway, usageList.size());
     }
 
     /**
-     * Inner class for usage summary
+     * Calculate total toll for a single vehicle in a specific month using highway-specific rates.
+     */
+    public double calculateTollForMonth(Long vehicleId, YearMonth month) {
+        List<HighwayUsage> usageRecords = highwayUsageService.getVehicleHighwayUsage(vehicleId);
+        Vehicle vehicle = vehicleRepository.findById(vehicleId).orElse(null);
+        if (vehicle == null) return 0.0;
+
+        double totalToll = 0.0;
+        for (HighwayUsage usage : usageRecords) {
+            if (usage.getEntryTimestamp() != null &&
+                    YearMonth.from(usage.getEntryTimestamp()).equals(month)) {
+                Highway highway = highwayService.getHighwayById(usage.getHighwayId()).orElse(null);
+                if (highway != null) {
+                    double rate = getRateForVehicleType(highway, vehicle.getVehicleType());
+                    totalToll += usage.getDistanceTraveled() * rate;
+                }
+            }
+        }
+        return totalToll;
+    }
+
+    /**
+     * Calculate total consolidated toll for all vehicles of a user for a specific month.
+     */
+    public double calculateTotalUserTollForMonth(Long userId, YearMonth month) {
+        List<Vehicle> vehicles = vehicleRepository.findByUser_UserId(userId);
+        double totalToll = 0.0;
+        for (Vehicle vehicle : vehicles) {
+            totalToll += calculateTollForMonth(vehicle.getVehicleId(), month);
+        }
+        return totalToll;
+    }
+
+    private double getRateForVehicleType(Highway highway, VehicleType type) {
+        if (type == null) return highway.getRatePerKmForCar();
+        switch (type) {
+            case CAR:  return highway.getRatePerKmForCar();
+            case BIKE: return highway.getRatePerKmForBike();
+            case TRUCK:
+            case BUS:  return highway.getRatePerKmForTruck();
+            default:   return highway.getRatePerKmForCar();
+        }
+    }
+
+    /**
+     * Inner class for vehicle usage summary response (used by HighwayUsageController).
      */
     public static class VehicleUsageSummary {
         private Long vehicleId;
-        private Double totalDistance;
+        private double totalDistance;
         private Map<String, Double> distanceByHighway;
         private int totalSessions;
 
-        public VehicleUsageSummary(Long vehicleId, Double totalDistance,
+        public VehicleUsageSummary(Long vehicleId, double totalDistance,
                 Map<String, Double> distanceByHighway, int totalSessions) {
             this.vehicleId = vehicleId;
             this.totalDistance = totalDistance;
@@ -85,31 +115,9 @@ public class HighwayUsageAggregationService {
             this.totalSessions = totalSessions;
         }
 
-        // Getters
-        public Long getVehicleId() {
-            return vehicleId;
-        }
-
-        public Double getTotalDistance() {
-            return totalDistance;
-        }
-
-        public Map<String, Double> getDistanceByHighway() {
-            return distanceByHighway;
-        }
-
-        public int getTotalSessions() {
-            return totalSessions;
-        }
-
-        @Override
-        public String toString() {
-            return "VehicleUsageSummary{" +
-                    "vehicleId=" + vehicleId +
-                    ", totalDistance=" + totalDistance + " km" +
-                    ", distanceByHighway=" + distanceByHighway +
-                    ", totalSessions=" + totalSessions +
-                    '}';
-        }
+        public Long getVehicleId() { return vehicleId; }
+        public double getTotalDistance() { return totalDistance; }
+        public Map<String, Double> getDistanceByHighway() { return distanceByHighway; }
+        public int getTotalSessions() { return totalSessions; }
     }
 }

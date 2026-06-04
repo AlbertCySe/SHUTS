@@ -19,6 +19,7 @@ function UserDashboard() {
         totalHighwayDistance: 0
     });
     const [myVehicles, setMyVehicles] = useState([]);
+    const [activeSimIds, setActiveSimIds] = useState([]);
     const [apiStatus, setApiStatus] = useState({
         userProfileLoaded: false,
         walletAvailable: true,
@@ -37,10 +38,25 @@ function UserDashboard() {
 
         initialLoad();
 
+        // Check standalone simulator active simulation IDs every 5 seconds
+        const fetchSimStatus = async () => {
+            try {
+                const res = await fetch('http://localhost:8082/api/simulation/status');
+                if (res.ok && isMounted) {
+                    const data = await res.json();
+                    setActiveSimIds(data.activeVehicleIds || []);
+                }
+            } catch {
+                if (isMounted) setActiveSimIds([]);
+            }
+        };
+        fetchSimStatus();
+
         // Real-time polling every 5 seconds
         const pollInterval = setInterval(() => {
             if (isMounted) {
                 fetchDashboardData();
+                fetchSimStatus();
             }
         }, 5000);
 
@@ -50,6 +66,7 @@ function UserDashboard() {
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [userId]);
+
 
     const fetchDashboardData = async () => {
         await Promise.all([
@@ -171,10 +188,11 @@ function UserDashboard() {
                     )}
 
                     {/* My Vehicles */}
-                    <DashboardMyVehicles vehicles={myVehicles} />
+                    <DashboardMyVehicles vehicles={myVehicles} activeSimIds={activeSimIds} />
                 </>
             )}
         </div>
+
     );
 }
 

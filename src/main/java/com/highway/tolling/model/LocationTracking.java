@@ -36,6 +36,15 @@ public class LocationTracking {
     @Column(nullable = false)
     private Boolean isOnHighway; // whether this location is on a highway
 
+    @Column
+    private Double speedKmH; // simulator-reported speed in km/h
+
+    @Column(length = 50)
+    private String status; // simulator-reported driving state
+
+    @Column(length = 150)
+    private String routeName; // simulator route label
+
     // Constructors
     public LocationTracking() {
         this.timestamp = LocalDateTime.now();
@@ -123,6 +132,30 @@ public class LocationTracking {
         this.isOnHighway = isOnHighway;
     }
 
+    public Double getSpeedKmH() {
+        return speedKmH;
+    }
+
+    public void setSpeedKmH(Double speedKmH) {
+        this.speedKmH = speedKmH;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getRouteName() {
+        return routeName;
+    }
+
+    public void setRouteName(String routeName) {
+        this.routeName = routeName;
+    }
+
     @Override
     public String toString() {
         return "LocationTracking{" +
@@ -134,6 +167,9 @@ public class LocationTracking {
                 ", highwayId=" + highwayId +
                 ", distanceFromPrevious=" + distanceFromPrevious + " km" +
                 ", isOnHighway=" + isOnHighway +
+                ", speedKmH=" + speedKmH +
+                ", status='" + status + '\'' +
+                ", routeName='" + routeName + '\'' +
                 '}';
     }
 }

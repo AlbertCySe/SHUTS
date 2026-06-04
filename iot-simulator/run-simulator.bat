@@ -33,18 +33,14 @@ if exist "C:\maven-portable\apache-maven-3.9.6\bin\mvn.cmd" (
 echo Start IoT Java Backend (Port 8082)...
 start "IoT Simulator Backend" cmd /k "!MAVEN_CMD! spring-boot:run"
 
-echo Checking Frontend Dependencies...
-if not exist "frontend\node_modules\" (
-    echo [SETUP] First-time setup: Installing dependency packages...
-    cd frontend
-    call npm install
-    cd ..
-)
+echo Waiting for Java backend to start...
+timeout /t 8 /nobreak >nul
 
-echo Starting Standalone Map Dashboard...
-start "IoT Simulator Frontend" cmd /k "cd frontend && npm run dev"
+echo Opening IoT Dashboard...
+start http://localhost:8082
 
 echo.
-echo Both simulator components are booting up securely!
+echo Standalone IoT Simulator is booting up securely!
 pause >nul
 exit /b 0
+

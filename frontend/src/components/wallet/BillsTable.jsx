@@ -2,7 +2,7 @@ import React from 'react';
 
 const BILLS_PER_PAGE = 6;
 
-function BillsTable({ bills, vehicles, loading, onExportCSV }) {
+function BillsTable({ bills, vehicles, loading, onExportCSV, onPayBill }) {
     const [billFilter, setBillFilter] = React.useState('All');
     const [vehicleFilter, setVehicleFilter] = React.useState('All');
     const [currentPage, setCurrentPage] = React.useState(1);
@@ -60,31 +60,50 @@ function BillsTable({ bills, vehicles, loading, onExportCSV }) {
                                 <thead>
                                     <tr>
                                         <th>#</th><th>Month</th><th>Vehicle</th>
-                                        <th>Distance</th><th>Amount</th><th>Status</th><th>Due Date</th>
+                                        <th>Distance</th><th>Amount</th><th>Status</th><th>Due Date</th><th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {pagedBills.map((bill, i) => (
-                                        <tr key={bill.billId || i}>
-                                            <td><span className="admin-id-pill">#{(currentPage - 1) * BILLS_PER_PAGE + i + 1}</span></td>
-                                            <td>{bill.billMonth || 'N/A'}</td>
-                                            <td>{bill.vehicle?.vehicleNumber || bill.vehicleNumber || 'N/A'}</td>
-                                            <td>{parseFloat(bill.totalDistance || 0).toFixed(2)} km</td>
-                                            <td style={{ fontWeight: 'bold', color: '#8e44ad' }}>₹{parseFloat(bill.totalAmount || 0).toFixed(2)}</td>
-                                            <td>
-                                                <span style={{
-                                                    padding: '3px 10px', borderRadius: '12px', fontSize: '12px', fontWeight: 'bold',
-                                                    background: bill.isPaid ? 'rgba(39,174,96,0.12)' : 'rgba(231,76,60,0.1)',
-                                                    color: bill.isPaid ? '#27ae60' : '#e74c3c'
-                                                }}>
-                                                    {bill.isPaid ? '✅ Paid' : '⏳ Pending'}
-                                                </span>
-                                            </td>
-                                            <td style={{ color: '#7f8c8d', fontSize: '13px' }}>
-                                                {bill.dueDate ? new Date(bill.dueDate).toLocaleDateString('en-IN') : 'N/A'}
-                                            </td>
-                                        </tr>
-                                    ))}
+                                    {pagedBills.map((bill, i) => {
+                                        const isPaid = bill.isPaid || bill.status === 'PAID';
+                                        return (
+                                            <tr key={bill.billId || i}>
+                                                <td><span className="admin-id-pill">#{(currentPage - 1) * BILLS_PER_PAGE + i + 1}</span></td>
+                                                <td>{bill.billMonth || 'N/A'}</td>
+                                                <td>{
+                                                    bill.vehicle?.vehicleNumber || 
+                                                    bill.vehicleNumber || 
+                                                    (bill.vehicleId && vehicles ? vehicles.find(v => v.vehicleId === bill.vehicleId || v.id === bill.vehicleId)?.number || vehicles.find(v => v.vehicleId === bill.vehicleId || v.id === bill.vehicleId)?.vehicleNumber : null) || 
+                                                    (bill.vehicleId ? `Vehicle #${bill.vehicleId}` : 'Consolidated (All Vehicles)')
+                                                }</td>
+                                                <td>{parseFloat(bill.totalDistance || 0).toFixed(2)} km</td>
+                                                <td style={{ fontWeight: 'bold', color: '#8e44ad' }}>₹{parseFloat(bill.totalAmount || 0).toFixed(2)}</td>
+                                                <td>
+                                                    <span style={{
+                                                        padding: '3px 10px', borderRadius: '12px', fontSize: '12px', fontWeight: 'bold',
+                                                        background: isPaid ? 'rgba(39,174,96,0.12)' : 'rgba(231,76,60,0.1)',
+                                                        color: isPaid ? '#27ae60' : '#e74c3c'
+                                                    }}>
+                                                        {isPaid ? '✅ Paid' : '⏳ Pending'}
+                                                    </span>
+                                                </td>
+                                                <td style={{ color: '#7f8c8d', fontSize: '13px' }}>
+                                                    {bill.dueDate ? new Date(bill.dueDate).toLocaleDateString('en-IN') : 'N/A'}
+                                                </td>
+                                                <td>
+                                                    {!isPaid && (
+                                                        <button 
+                                                            onClick={() => onPayBill && onPayBill(bill.billId)}
+                                                            className="btn btn-primary"
+                                                            style={{ padding: '6px 12px', fontSize: '12px', borderRadius: '6px' }}
+                                                        >
+                                                            💸 Pay Now
+                                                        </button>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        )
+                                    })}
                                 </tbody>
                             </table>
                         </div>

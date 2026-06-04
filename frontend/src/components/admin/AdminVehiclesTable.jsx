@@ -4,17 +4,37 @@ import { usePagination } from '../../hooks/usePagination';
 import Paginator from '../Paginator';
 import LoadingFallback from '../LoadingFallback';
 
-function AdminVehiclesTable({ refreshTrigger, onEditTrigger, onAddTrigger }) {
+function AdminVehiclesTable({ refreshTrigger, onEditTrigger, onAddTrigger, onTrackTrigger }) {
     const [vehicles, setVehicles] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [togglingId, setTogglingId] = useState(null);
+    const [activeSimIds, setActiveSimIds] = useState([]);
 
     const { page, setPage, totalPages, paged: pagedVehicles, rangeLabel } = usePagination(vehicles, 10);
 
     useEffect(() => {
         fetchVehicles();
+        fetchSimStatus();
     }, [refreshTrigger]);
+
+    // Poll simulator status every 5 seconds
+    useEffect(() => {
+        const interval = setInterval(fetchSimStatus, 5000);
+        return () => clearInterval(interval);
+    }, []);
+
+    const fetchSimStatus = async () => {
+        try {
+            const res = await fetch('http://localhost:8082/api/simulation/status');
+            if (res.ok) {
+                const data = await res.json();
+                setActiveSimIds(data.activeVehicleIds || []);
+            }
+        } catch {
+            setActiveSimIds([]);
+        }
+    };
 
     const fetchVehicles = async () => {
         try {
@@ -47,6 +67,7 @@ function AdminVehiclesTable({ refreshTrigger, onEditTrigger, onAddTrigger }) {
         finally { setTogglingId(null); }
     };
 
+
     if (loading) return <LoadingFallback />;
 
     return (
@@ -76,6 +97,7 @@ function AdminVehiclesTable({ refreshTrigger, onEditTrigger, onAddTrigger }) {
                                 <th>Type</th>
                                 <th>Owner ID</th>
                                 <th>Status</th>
+                                <th>IoT Link</th>
                                 <th>Registered Date</th>
                                 <th>Actions</th>
                             </tr>
@@ -83,49 +105,76 @@ function AdminVehiclesTable({ refreshTrigger, onEditTrigger, onAddTrigger }) {
                         <tbody>
                             {vehicles.length === 0 ? (
                                 <tr>
-                                    <td colSpan="7" style={{ textAlign: 'center', padding: '30px', color: '#7f8c8d' }}>
+                                    <td colSpan="8" style={{ textAlign: 'center', padding: '30px', color: '#7f8c8d' }}>
                                         No vehicles found in the system.
                                     </td>
                                 </tr>
                             ) : (
-                                pagedVehicles.map((vehicle, i) => (
-                                    <tr key={vehicle.vehicleId}>
-                                        <td><span className="admin-id-pill">#{(page - 1) * 10 + i + 1}</span></td>
-                                        <td style={{ fontWeight: '600' }}>{vehicle.vehicleNumber}</td>
-                                        <td>
-                                            <span style={{ background: '#edf2f7', color: '#2c3e50', padding: '3px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold' }}>
-                                                {vehicle.vehicleType}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            {vehicle.ownerId ? (
-                                                <span style={{ fontWeight: 'bold', color: '#16a085' }}>👤 User {vehicle.ownerId}</span>
-                                            ) : (
-                                                <span style={{ color: '#e74c3c' }}>Unassigned</span>
-                                            )}
-                                        </td>
-                                        <td>
-                                            <button 
-                                                className={`status-toggle-btn ${vehicle.status?.toUpperCase() === 'INACTIVE' ? 'status-inactive' : 'status-active'}`}
-                                                onClick={() => handleToggleStatus(vehicle)}
-                                                disabled={togglingId === vehicle.vehicleId}
-                                                title={vehicle.status?.toUpperCase() === 'INACTIVE' ? 'Click to Activate' : 'Click to Deactivate'}
-                                            >
-                                                {togglingId === vehicle.vehicleId ? '...' : (
-                                                    <><span className="status-dot">●</span> {vehicle.status || 'ACTIVE'}</>
+                                pagedVehicles.map((vehicle, i) => {
+                                    const isConnected = activeSimIds.includes(vehicle.vehicleId);
+                                    return (
+                                        <tr key={vehicle.vehicleId}>
+                                            <td><span className="admin-id-pill">#{(page - 1) * 10 + i + 1}</span></td>
+                                            <td style={{ fontWeight: '600' }}>{vehicle.vehicleNumber}</td>
+                                            <td>
+                                                <span style={{ background: '#edf2f7', color: '#2c3e50', padding: '3px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold' }}>
+                                                    {vehicle.vehicleType}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                {vehicle.ownerId ? (
+                                                    <span style={{ fontWeight: 'bold', color: '#16a085' }}>👤 User {vehicle.ownerId}</span>
+                                                ) : (
+                                                    <span style={{ color: '#e74c3c' }}>Unassigned</span>
                                                 )}
-                                            </button>
-                                        </td>
-                                        <td><span style={{ color: '#7f8c8d', fontSize: '13px' }}>{vehicle.registeredAt ? new Date(vehicle.registeredAt).toLocaleDateString() : 'N/A'}</span></td>
+                                            </td>
+                                            <td>
+                                                <button 
+                                                    className={`status-toggle-btn ${vehicle.status?.toUpperCase() === 'INACTIVE' ? 'status-inactive' : 'status-active'}`}
+                                                    onClick={() => handleToggleStatus(vehicle)}
+                                                    disabled={togglingId === vehicle.vehicleId}
+                                                    title={vehicle.status?.toUpperCase() === 'INACTIVE' ? 'Click to Activate' : 'Click to Deactivate'}
+                                                >
+                                                    {togglingId === vehicle.vehicleId ? '...' : (
+                                                        <><span className="status-dot">●</span> {vehicle.status || 'ACTIVE'}</>
+                                                    )}
+                                                </button>
+                                            </td>
+                                            <td>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                    <span style={{
+                                                        width: '8px', height: '8px', borderRadius: '50%',
+                                                        background: isConnected ? '#2ecc71' : '#bdc3c7',
+                                                        boxShadow: isConnected ? '0 0 6px #2ecc71' : 'none',
+                                                        display: 'inline-block'
+                                                    }} />
+                                                    <span style={{
+                                                        fontSize: '11px',
+                                                        fontWeight: '700',
+                                                        color: isConnected ? '#27ae60' : '#7f8c8d',
+                                                        background: isConnected ? 'rgba(46,204,113,0.1)' : 'rgba(189,195,199,0.1)',
+                                                        padding: '2px 8px',
+                                                        borderRadius: '12px',
+                                                        border: isConnected ? '1px solid rgba(46,204,113,0.25)' : '1px solid rgba(189,195,199,0.25)',
+                                                        letterSpacing: '0.3px'
+                                                    }}>
+                                                        {isConnected ? 'ONLINE' : 'OFFLINE'}
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td><span style={{ color: '#7f8c8d', fontSize: '13px' }}>{vehicle.registeredAt ? new Date(vehicle.registeredAt).toLocaleDateString() : 'N/A'}</span></td>
                                         <td>
                                             <div className="admin-action-group">
+                                                <button className="admin-btn-sm admin-btn-track" onClick={() => onTrackTrigger(vehicle)} title="Track Vehicle">Track</button>
                                                 <button className="admin-btn-sm admin-btn-edit" onClick={() => onEditTrigger(vehicle)} title="Edit Vehicle">✏️ Edit</button>
                                                 <button className="admin-btn-sm admin-btn-delete" onClick={() => handleDelete(vehicle.vehicleId, vehicle.vehicleNumber)} title="Delete Vehicle">🗑️ Delete</button>
                                             </div>
                                         </td>
                                     </tr>
-                                ))
+                                );
+                                })
                             )}
+
                         </tbody>
                     </table>
                 </div>

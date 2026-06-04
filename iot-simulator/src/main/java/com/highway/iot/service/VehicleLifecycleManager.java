@@ -1,6 +1,7 @@
 package com.highway.iot.service;
 
 import com.highway.iot.model.VehicleSimulator;
+import com.highway.iot.model.SimulatorSettings;
 import com.highway.simulator.entity.VehicleEntity;
 import com.highway.simulator.entity.VehicleHistory;
 import com.highway.simulator.repository.VehicleEntityRepository;
@@ -24,47 +25,52 @@ public class VehicleLifecycleManager {
     private final VehicleHistoryRepository historyRepo;
     private final RouteFetchService routeFetchService;
     private final ActiveVehicleRegistry registry;
+    private final SimulatorSettingsService settingsService;
     private final Random random = new Random();
 
     @Autowired
     public VehicleLifecycleManager(VehicleEntityRepository vehicleRepo,
                                    VehicleHistoryRepository historyRepo,
                                    RouteFetchService routeFetchService,
-                                   ActiveVehicleRegistry registry) {
+                                   ActiveVehicleRegistry registry,
+                                   SimulatorSettingsService settingsService) {
         this.vehicleRepo = vehicleRepo;
         this.historyRepo = historyRepo;
         this.routeFetchService = routeFetchService;
         this.registry = registry;
+        this.settingsService = settingsService;
     }
 
-    @Scheduled(fixedRate = 30000)
+    @Scheduled(fixedDelayString = "#{@simulatorSettingsService.settings.lifecycle.lifecycleIntervalMs}")
     public void executeLifecycleEvents() {
         List<VehicleEntity> allVehicles = vehicleRepo.findAll();
+        SimulatorSettings.LifecycleSettings lifecycle = settingsService.getSettings().getLifecycle();
+        SimulatorSettings.RouteSettings route = settingsService.getSettings().getRoute();
         
         for (VehicleEntity v : allVehicles) {
             String status = v.getCurrentStatus();
             
             // 10% chance to wake up a PARKED vehicle
             if ("PARKED".equals(status)) {
-                if (random.nextDouble() < 0.10) {
+                if (random.nextDouble() < lifecycle.getParkedStartProbability()) {
                     startVehicle(v);
                 }
             } 
             // 5% chance to pause a RUNNING vehicle for a break
             else if ("RUNNING".equals(status)) {
-                if (random.nextDouble() < 0.05) {
+                if (random.nextDouble() < lifecycle.getRunningPauseProbability()) {
                     pauseVehicle(v);
                 } else if (registry.containsKey(v.getCoreVehicleId())) {
                     // Check if route finished
                     VehicleSimulator sim = registry.get(v.getCoreVehicleId());
-                    if (sim.getCurrentWaypointIndex() >= sim.getDetailedRoute().size() - 2) {
+                    if (sim.getCurrentWaypointIndex() >= sim.getDetailedRoute().size() - route.getCompletionWaypointOffset()) {
                         stopVehicle(v);
                     }
                 }
             }
             // 20% chance to resume a vehicle on a BREAK
             else if ("STOPPED_FOR_BREAK".equals(status)) {
-                if (random.nextDouble() < 0.20) {
+                if (random.nextDouble() < lifecycle.getBreakResumeProbability()) {
                     resumeVehicle(v);
                 }
             }
@@ -78,7 +84,9 @@ public class VehicleLifecycleManager {
         
         historyRepo.save(new VehicleHistory(v.getCoreVehicleId(), "TRIP_START", "Vehicle started a new trip."));
         
-        int routeId = random.nextInt(6) + 1; // 1 to 6
+        int routeId = "RANDOM".equalsIgnoreCase(settingsService.getSettings().getRoute().getRouteSelectionMode())
+                ? random.nextInt(routeFetchService.getSelectableRouteCount()) + 1
+                : 1;
         VehicleSimulator sim = routeFetchService.fetchAndAssignRouteForVehicle(v.getCoreVehicleId().intValue(), routeId);
         if (sim != null) {
             registry.add(v.getCoreVehicleId(), sim);

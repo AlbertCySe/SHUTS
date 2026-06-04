@@ -5,7 +5,6 @@ import jakarta.validation.constraints.*;
 /**
  * IoT Data Request DTO
  * Represents incoming GPS data from an IoT device.
- * Includes validation for data integrity.
  */
 public class IoTDataRequest {
 
@@ -23,10 +22,18 @@ public class IoTDataRequest {
     private Double longitude;
 
     @NotNull(message = "Timestamp is required")
-    private String timestamp; // ISO-8601 format (e.g., "2026-02-04T13:18:00")
+    private String timestamp;
 
-    // Simulator explicitly defining whether point is on a highway
     private Boolean isHighway;
+
+    @DecimalMin(value = "0.0", message = "Speed must be zero or greater")
+    private Double speedKmH;
+
+    @Size(max = 50, message = "Status must be 50 characters or fewer")
+    private String status;
+
+    @Size(max = 150, message = "Route name must be 150 characters or fewer")
+    private String routeName;
 
     // Default Constructor
     public IoTDataRequest() {
@@ -81,6 +88,30 @@ public class IoTDataRequest {
         this.isHighway = isHighway;
     }
 
+    public Double getSpeedKmH() {
+        return speedKmH;
+    }
+
+    public void setSpeedKmH(Double speedKmH) {
+        this.speedKmH = speedKmH;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getRouteName() {
+        return routeName;
+    }
+
+    public void setRouteName(String routeName) {
+        this.routeName = routeName;
+    }
+
     @Override
     public String toString() {
         return "IoTDataRequest{" +
@@ -89,6 +120,9 @@ public class IoTDataRequest {
                 ", longitude=" + longitude +
                 ", timestamp='" + timestamp + '\'' +
                 ", isHighway=" + isHighway +
+                ", speedKmH=" + speedKmH +
+                ", status='" + status + '\'' +
+                ", routeName='" + routeName + '\'' +
                 '}';
     }
 }

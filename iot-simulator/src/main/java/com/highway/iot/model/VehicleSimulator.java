@@ -1,5 +1,7 @@
 package com.highway.iot.model;
 
+import com.highway.iot.service.SimulatorSettingsService;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -14,6 +16,7 @@ public class VehicleSimulator {
 
     private final int vehicleId;
     private final String routeName;
+    private final SimulatorSettingsService settingsService;
     private List<double[]> detailedRoute = new ArrayList<>();
     private AtomicInteger currentWaypointIndex = new AtomicInteger(0);
     private double progressToNext = 0.0;
@@ -32,9 +35,10 @@ public class VehicleSimulator {
     private double wanderLatOffset = 0.0;
     private double wanderLngOffset = 0.0;
 
-    public VehicleSimulator(int vehicleId, String routeName) {
+    public VehicleSimulator(int vehicleId, String routeName, SimulatorSettingsService settingsService) {
         this.vehicleId = vehicleId;
         this.routeName = routeName;
+        this.settingsService = settingsService;
     }
 
     // --- Core Movement Logic (called every 500ms) ---
@@ -93,7 +97,8 @@ public class VehicleSimulator {
 
     /** Wander mode: drift with small random offsets on local roads */
     private void tickWander() {
-        double driftSpeedKmH = 20.0 + Math.random() * 20; // 20–40 km/h on local roads
+        SimulatorSettings.DrivingBehaviorSettings settings = settingsService.getSettings().getDrivingBehavior();
+        double driftSpeedKmH = randomDouble(settings.getWanderSpeedMinKmH(), settings.getWanderSpeedMaxKmH());
         double metersPerTick = driftSpeedKmH * (1000.0 / 3600.0) / 2.0;
         // 1 degree lat ≈ 111km => meters to degrees
         double degPerTick = metersPerTick / 111000.0;
@@ -101,9 +106,9 @@ public class VehicleSimulator {
         double angle = Math.random() * 2 * Math.PI;
         wanderLatOffset += degPerTick * Math.cos(angle);
         wanderLngOffset += degPerTick * Math.sin(angle);
-        // Cap max wander drift to 0.04° ≈ 4.4km off route
-        wanderLatOffset = Math.max(-0.04, Math.min(0.04, wanderLatOffset));
-        wanderLngOffset = Math.max(-0.04, Math.min(0.04, wanderLngOffset));
+        double maxOffset = settings.getWanderMaxOffsetDegrees();
+        wanderLatOffset = Math.max(-maxOffset, Math.min(maxOffset, wanderLatOffset));
+        wanderLngOffset = Math.max(-maxOffset, Math.min(maxOffset, wanderLngOffset));
         // Apply to anchor (current route point)
         int idx = Math.min(currentWaypointIndex.get(), detailedRoute.size() - 1);
         double[] anchor = detailedRoute.get(idx);
@@ -118,49 +123,65 @@ public class VehicleSimulator {
             return;
         }
         // At expiry of travel mode, decide next mode
+        SimulatorSettings.DrivingBehaviorSettings settings = settingsService.getSettings().getDrivingBehavior();
         double rand = Math.random();
         if (travelMode == TravelMode.HIGHWAY) {
-            if (rand < 0.20) { // 20% chance to wander off
+            if (rand < settings.getWanderOffRouteProbability()) {
                 travelMode = TravelMode.WANDERING;
-                travelModeTicksRemaining = 40 + (int)(Math.random() * 80); // 20-60 seconds
+                travelModeTicksRemaining = randomInt(settings.getWanderTicksMin(), settings.getWanderTicksMax());
                 wanderLatOffset = 0;
                 wanderLngOffset = 0;
             } else {
-                travelModeTicksRemaining = 60 + (int)(Math.random() * 120); // stay on highway
+                travelModeTicksRemaining = randomInt(settings.getHighwayStayTicksMin(), settings.getHighwayStayTicksMax());
             }
         } else { // WANDERING → return to highway
             travelMode = TravelMode.HIGHWAY;
-            travelModeTicksRemaining = 80 + (int)(Math.random() * 160); // 40-120s on highway
+            travelModeTicksRemaining = randomInt(settings.getReturnHighwayTicksMin(), settings.getReturnHighwayTicksMax());
         }
     }
 
     private void updateSimulationState() {
+        SimulatorSettings.SpeedStatusSettings settings = settingsService.getSettings().getSpeedStatus();
         if (stateTicksRemaining > 0) {
             stateTicksRemaining--;
             if (currentState == SimulationState.DRIVING) {
                 currentSpeedKmH += (Math.random() * 2 - 1);
-                currentSpeedKmH = Math.max(40.0, Math.min(80.0, currentSpeedKmH));
+                currentSpeedKmH = clamp(currentSpeedKmH, settings.getDrivingSpeedMinKmH(), settings.getDrivingSpeedMaxKmH());
             } else if (currentState == SimulationState.TRAFFIC) {
                 currentSpeedKmH += (Math.random() * 4 - 2);
-                currentSpeedKmH = Math.max(5.0, Math.min(30.0, currentSpeedKmH));
+                currentSpeedKmH = clamp(currentSpeedKmH, settings.getTrafficSpeedMinKmH(), settings.getTrafficSpeedMaxKmH());
             }
             return;
         }
 
         double rand = Math.random();
-        if (rand < 0.80) {
+        if (rand < settings.getDrivingProbability()) {
             currentState = SimulationState.DRIVING;
-            currentSpeedKmH = 60.0 + (Math.random() * 10);
-            stateTicksRemaining = 40 + (int)(Math.random() * 80);
-        } else if (rand < 0.95) {
+            currentSpeedKmH = randomDouble(settings.getDrivingStartSpeedMinKmH(), settings.getDrivingStartSpeedMaxKmH());
+            stateTicksRemaining = randomInt(settings.getDrivingStateTicksMin(), settings.getDrivingStateTicksMax());
+        } else if (rand < settings.getDrivingProbability() + settings.getTrafficProbability()) {
             currentState = SimulationState.TRAFFIC;
-            currentSpeedKmH = 15.0 + (Math.random() * 10);
-            stateTicksRemaining = 20 + (int)(Math.random() * 30);
+            currentSpeedKmH = randomDouble(settings.getTrafficStartSpeedMinKmH(), settings.getTrafficStartSpeedMaxKmH());
+            stateTicksRemaining = randomInt(settings.getTrafficStateTicksMin(), settings.getTrafficStateTicksMax());
         } else {
             currentState = SimulationState.STOPPED;
-            currentSpeedKmH = 0.0;
-            stateTicksRemaining = 10 + (int)(Math.random() * 20);
+            currentSpeedKmH = settings.getStoppedSpeedKmH();
+            stateTicksRemaining = randomInt(settings.getStoppedStateTicksMin(), settings.getStoppedStateTicksMax());
         }
+    }
+
+    private int randomInt(int minInclusive, int maxExclusive) {
+        if (maxExclusive <= minInclusive) return minInclusive;
+        return minInclusive + (int) (Math.random() * (maxExclusive - minInclusive));
+    }
+
+    private double randomDouble(double minInclusive, double maxExclusive) {
+        if (maxExclusive <= minInclusive) return minInclusive;
+        return minInclusive + (Math.random() * (maxExclusive - minInclusive));
+    }
+
+    private double clamp(double value, double min, double max) {
+        return Math.max(min, Math.min(max, value));
     }
 
     private double calculateDistanceMeters(double lat1, double lon1, double lat2, double lon2) {

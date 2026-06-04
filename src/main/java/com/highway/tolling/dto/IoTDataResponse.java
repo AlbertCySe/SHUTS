@@ -25,7 +25,7 @@ public class IoTDataResponse {
         this.processedTimestamp = LocalDateTime.now();
     }
 
-    // Error Constructor (no locationId)
+    // Error Constructor
     public IoTDataResponse(boolean success, String message) {
         this.success = success;
         this.message = message;

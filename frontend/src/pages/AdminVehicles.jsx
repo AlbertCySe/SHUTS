@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import AdminVehicleRequests from '../components/admin/AdminVehicleRequests';
 import AdminVehiclesTable from '../components/admin/AdminVehiclesTable';
 import AdminVehicleModal from '../components/admin/AdminVehicleModal';
+import AdminVehicleTrackingModal from '../components/admin/AdminVehicleTrackingModal';
 import './AdminUsersStyles.css';
 
 function AdminVehicles() {
@@ -11,6 +12,7 @@ function AdminVehicles() {
     const [showModal, setShowModal] = useState(false);
     const [modalMode, setModalMode] = useState('add');
     const [formData, setFormData] = useState({ vehicleId: null, vehicleNumber: '', vehicleType: 'CAR', userId: '' });
+    const [trackingVehicle, setTrackingVehicle] = useState(null);
 
     const triggerRefreshAll = useCallback(() => {
         setRefreshTrigger(prev => prev + 1);
@@ -46,6 +48,7 @@ function AdminVehicles() {
                 refreshTrigger={refreshTrigger}
                 onAddTrigger={handleAddTrigger}
                 onEditTrigger={handleEditTrigger}
+                onTrackTrigger={setTrackingVehicle}
             />
 
             <AdminVehicleModal 
@@ -54,6 +57,11 @@ function AdminVehicles() {
                 initialData={formData}
                 onClose={() => setShowModal(false)}
                 onSuccess={triggerRefreshAll}
+            />
+
+            <AdminVehicleTrackingModal
+                vehicle={trackingVehicle}
+                onClose={() => setTrackingVehicle(null)}
             />
         </div>
     );

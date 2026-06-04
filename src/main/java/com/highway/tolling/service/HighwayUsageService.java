@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 
@@ -82,5 +83,40 @@ public class HighwayUsageService {
      */
     public Double getTotalDistanceByVehicleAndHighway(Long vehicleId, Long highwayId) {
         return highwayUsageRepository.getTotalDistanceByVehicleAndHighway(vehicleId, highwayId);
+    }
+
+    /**
+     * Get total distance traveled by a vehicle in a specific month
+     */
+    public Double getMonthlyDistanceForVehicle(Long vehicleId, YearMonth month) {
+        LocalDateTime startDate = month.atDay(1).atStartOfDay();
+        LocalDateTime endDate = month.plusMonths(1).atDay(1).atStartOfDay();
+        return highwayUsageRepository.getTotalDistanceByVehicleIdAndDateRange(vehicleId, startDate, endDate);
+    }
+
+    /**
+     * Get detailed usage records for a vehicle in a specific month
+     */
+    public List<HighwayUsage> getMonthlyUsageForVehicle(Long vehicleId, YearMonth month) {
+        LocalDateTime startDate = month.atDay(1).atStartOfDay();
+        LocalDateTime endDate = month.plusMonths(1).atDay(1).atStartOfDay();
+        return highwayUsageRepository.findByVehicleIdAndDateRange(vehicleId, startDate, endDate);
+    }
+    /**
+     * Get total distance traveled by all vehicles of a user in a specific month
+     */
+    public Double getMonthlyDistanceForUser(Long userId, YearMonth month) {
+        LocalDateTime startDate = month.atDay(1).atStartOfDay();
+        LocalDateTime endDate = month.plusMonths(1).atDay(1).atStartOfDay();
+        return highwayUsageRepository.getTotalDistanceByUserIdAndDateRange(userId, startDate, endDate);
+    }
+
+    /**
+     * Get all distinct vehicle IDs that have usage in a specific month
+     */
+    public List<Long> getDistinctVehicleIdsWithUsage(YearMonth month) {
+        LocalDateTime startDate = month.atDay(1).atStartOfDay();
+        LocalDateTime endDate = month.plusMonths(1).atDay(1).atStartOfDay();
+        return highwayUsageRepository.findDistinctVehicleIdsByDateRange(startDate, endDate);
     }
 }

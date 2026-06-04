@@ -43,6 +43,16 @@ public class LocationTrackingService {
     }
 
     /**
+     * Get latest location record for a specific vehicle
+     *
+     * @param vehicleId the vehicle ID
+     * @return Optional containing the latest location record if found
+     */
+    public Optional<LocationTracking> getLatestLocationByVehicleId(Long vehicleId) {
+        return locationTrackingRepository.findFirstByVehicleIdOrderByTimestampDesc(vehicleId);
+    }
+
+    /**
      * Get a single location record by ID
      * 
      * @param id the location tracking ID

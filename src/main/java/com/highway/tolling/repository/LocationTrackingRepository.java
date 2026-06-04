@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * LocationTracking Repository Interface
@@ -28,4 +29,12 @@ public interface LocationTrackingRepository extends JpaRepository<LocationTracki
      * @return list of location tracking records in reverse chronological order
      */
     List<LocationTracking> findByVehicleIdOrderByTimestampDesc(Long vehicleId);
+
+    /**
+     * Find the latest location record for a vehicle
+     *
+     * @param vehicleId the vehicle ID
+     * @return optional latest location tracking record
+     */
+    Optional<LocationTracking> findFirstByVehicleIdOrderByTimestampDesc(Long vehicleId);
 }

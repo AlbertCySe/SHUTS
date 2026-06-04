@@ -29,4 +29,8 @@ public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
      */
     boolean existsByVehicleNumber(String vehicleNumber);
 
+    /**
+     * Find all vehicles belonging to a specific user
+     */
+    java.util.List<Vehicle> findByUser_UserId(Long userId);
 }

@@ -11,6 +11,11 @@ import java.util.Map;
  */
 @Service
 public class NHDetectionService {
+    private final SimulatorSettingsService settingsService;
+
+    public NHDetectionService(SimulatorSettingsService settingsService) {
+        this.settingsService = settingsService;
+    }
 
     // Each entry: NH name → array of [lat, lng] waypoints defining that corridor
     private static final Map<String, double[][]> NH_CORRIDORS = new LinkedHashMap<>();
@@ -61,9 +66,6 @@ public class NHDetectionService {
         });
     }
 
-    // Tolerance in km — must be within this distance of a corridor to count as "on" that NH
-    private static final double HIGHWAY_TOLERANCE_KM = 5.0;
-
     /**
      * Returns the NH name the vehicle is currently on (e.g. "NH38"),
      * or "LOCAL_ROAD" if not near any recorded corridor.
@@ -75,7 +77,7 @@ public class NHDetectionService {
                 double dist = pointToLineDistanceKm(lat, lng,
                         corridor[i][0], corridor[i][1],
                         corridor[i + 1][0], corridor[i + 1][1]);
-                if (dist <= HIGHWAY_TOLERANCE_KM) {
+                if (dist <= settingsService.getSettings().getHighwayDetection().getHighwayToleranceKm()) {
                     return entry.getKey(); // matched
                 }
             }

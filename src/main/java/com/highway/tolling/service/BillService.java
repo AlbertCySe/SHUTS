@@ -51,6 +51,23 @@ public class BillService {
     }
 
     /**
+     * Create a new bill for a specific vehicle
+     * 
+     * @param userId        User ID
+     * @param vehicleId     Vehicle ID
+     * @param totalDistance Total distance traveled
+     * @param totalAmount   Total toll amount
+     * @param billMonth     Bill month (format: "2026-01")
+     * @param dueDate       Due date for payment
+     * @return the created bill
+     */
+    public Bill createBill(Long userId, Long vehicleId, Double totalDistance, Double totalAmount,
+            String billMonth, LocalDate dueDate) {
+        Bill bill = new Bill(userId, vehicleId, totalDistance, totalAmount, billMonth, dueDate);
+        return billRepository.save(bill);
+    }
+
+    /**
      * Get all bills for a user
      * 
      * @param userId the user ID
@@ -79,6 +96,17 @@ public class BillService {
      */
     public Optional<Bill> getBillByUserAndMonth(Long userId, String billMonth) {
         return billRepository.findByUserIdAndBillMonth(userId, billMonth);
+    }
+
+    /**
+     * Get bill for a vehicle for a specific month
+     * 
+     * @param vehicleId the vehicle ID
+     * @param billMonth the bill month (format: "2026-01")
+     * @return Optional containing the bill if found
+     */
+    public Optional<Bill> getBillByVehicleAndMonth(Long vehicleId, String billMonth) {
+        return billRepository.findByVehicleIdAndBillMonth(vehicleId, billMonth);
     }
 
     /**
