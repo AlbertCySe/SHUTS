@@ -4,9 +4,9 @@ SETLOCAL EnableDelayedExpansion
 title IoT Simulator Launcher
 color 0B
 
-echo ╔════════════════════════════════════════════════════════════╗
-echo ║            IOT VEHICLE SIMULATOR LAUNCHER                ║
-echo ╚════════════════════════════════════════════════════════════╝
+echo #####################################################################################
+echo #                      ..IOT VEHICLE SIMULATOR LAUNCHER..                           #
+echo #####################################################################################
 echo.
 
 REM 1. Set Path for Node.js if it exists in Default Location
@@ -34,7 +34,7 @@ echo Start IoT Java Backend (Port 8082)...
 start "IoT Simulator Backend" cmd /k "!MAVEN_CMD! spring-boot:run"
 
 echo Waiting for Java backend to start...
-timeout /t 8 /nobreak >nul
+timeout /t 12 /nobreak >nul
 
 echo Opening IoT Dashboard...
 start http://localhost:8082

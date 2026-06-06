@@ -11,10 +11,10 @@ color 0A
 title Smart Highway Tolling System Launcher
 cls
 
-echo ╔════════════════════════════════════════════════════════════╗
-echo ║     SMART HIGHWAY TOLLING SYSTEM - PROJECT LAUNCHER      ║
-echo ║              SRM Institute of Technology - Trichy         ║
-echo ╚════════════════════════════════════════════════════════════╝
+echo ####################################################################################
+echo #                  SMART HIGHWAY TOLLING SYSTEM - PROJECT LAUNCHER                #
+echo #                        SRM Institute of Technology - Trichy                     #
+echo ###################################################################################
 echo.
 echo Developed by: Albert J (MCA Final Year)
 echo.
@@ -26,9 +26,9 @@ echo [0/3] Checking environment configuration...
 if not exist ".env" (
     echo ⚠ .env file not found!
     echo.
-    echo ════════════════════════════════════════════════════════════
-    echo   DATABASE CREDENTIALS SETUP
-    echo ════════════════════════════════════════════════════════════
+    echo ##################################################################################
+    echo                             DATABASE CREDENTIALS SETUP
+    echo ##################################################################################
     echo.
     echo This is your first time running the project.
     echo Please provide your MySQL database credentials:
@@ -108,9 +108,9 @@ if exist "C:\Program Files\nodejs\node.exe" (
 REM Not found anywhere
 echo ❌ Node.js NOT found
 echo.
-echo ════════════════════════════════════════════════════════════
-echo   NODE.JS IS REQUIRED FOR FRONTEND
-echo ════════════════════════════════════════════════════════════
+echo ###################################################################################
+echo                         NODE.JS IS REQUIRED FOR FRONTEND
+echo ###################################################################################
 echo.
 echo You have 2 options:
 echo.
@@ -121,7 +121,7 @@ echo   [Option 2] Manual Install
 echo   Download from: https://nodejs.org/
 echo   Install Node.js 18+ LTS version
 echo.
-echo ════════════════════════════════════════════════════════════
+echo ###################################################################################
 pause
 exit /b 1
 
@@ -171,14 +171,14 @@ goto :build_complete
 
 REM All build methods failed
 echo.
-echo ════════════════════════════════════════════════════════════
-echo   ⚠ MAVEN SETUP NEEDED
-echo ════════════════════════════════════════════════════════════
+echo ###################################################################################
+echo                             ⚠ MAVEN SETUP NEEDED
+echo ###################################################################################
 echo.
 echo Don't worry! This is easy to fix.
 echo.
 echo ┌──────────────────────────────────────────────────────────┐
-echo │  OPTION 1: AUTO-FIX (Recommended - Takes 3 minutes)     │
+echo │                 OPTION 1: AUTO-FIX (Recommended - Takes 3 minutes)             │
 echo └──────────────────────────────────────────────────────────┘
 echo.
 echo   1. Close this window
@@ -192,7 +192,7 @@ echo   → Install it for you
 echo   → Configure everything
 echo.
 echo ┌──────────────────────────────────────────────────────────┐
-echo │  OPTION 2: OFFLINE FIX (If Option 1 doesn't work)       │
+echo │                  OPTION 2: OFFLINE FIX (If Option 1 doesn't work)              │
 echo └──────────────────────────────────────────────────────────┘
 echo.
 echo   If you see "No internet" or download fails:
@@ -204,7 +204,7 @@ echo   2. Copy the ZIP file to THIS computer's Desktop
 echo.
 echo   3. Double-click: install-maven-offline.bat
 echo.
-echo ════════════════════════════════════════════════════════════
+echo ###################################################################################
 echo.
 echo TIP: Option 1 is easiest! Just run fix-maven.bat
 echo.
@@ -240,9 +240,9 @@ if not exist "frontend\node_modules\" (
 )
 echo.
 
-echo ╔════════════════════════════════════════════════════════════╗
-echo ║                  STARTING SERVICES                         ║
-echo ╚════════════════════════════════════════════════════════════╝
+echo ###################################################################################
+echo #                              STARTING SERVICES                                  #
+echo ###################################################################################
 echo.
 
 REM Start backend with Maven
@@ -274,9 +274,9 @@ echo Opening browser...
 start http://localhost:3000
 echo.
 
-echo ╔════════════════════════════════════════════════════════════╗
-echo ║                    STATUS SUMMARY                          ║
-echo ╚════════════════════════════════════════════════════════════╝
+echo ###################################################################################
+echo #                                STATUS SUMMARY                                   #
+echo ###################################################################################
 echo.
 echo ✓ Backend:  http://localhost:8080 (BLUE window)
 echo ✓ Frontend: http://localhost:3000 (YELLOW window)
